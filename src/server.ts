@@ -1,9 +1,17 @@
 import Discord from 'discord.js';
 import Debug from 'debug';
+import http from 'http';
 
 import * as utils from './utils';
 
 const debug = Debug('streamer:server');
+
+/**
+ * This is required for the deployment on `zeit.co` or the deployment will fail
+ * since it can't see any app listening on an HTTP port. We don't run anything
+ * on ir, it is just a dummy http-server to trick `zeit.co`.
+ */
+const webserver = http.createServer().listen(3000);
 
 export const client = new Discord.Client();
 export const commands = utils.loadCommands();
