@@ -44,8 +44,14 @@ export function playTrack(message: Discord.Message, tracks: models.Track[]) {
   return guildVoiceConnection.playStream(stream)
     .on('error', (error) => debug('unexpected error while trying to play a track: %s', error.message))
     .on('start', () => debug('started audio stream for guildID: %s', guildID))
-    .on('end', () => {
+    .on('end', (reason) => {
       const guildQueue = queue.removeFirstTrack(track.initiator);
+
+      // The `end` event is emitted 2 times from the `stopTrack` function, we
+      // filter the skip reason so we don't remove 2 tracks instead of 1.
+      if (reason === 'skip') {
+        return;
+      }
 
       debug('track ended for guild: %s, queue state after removing the played track: %s', guildID, guildQueue.length);
 
@@ -57,4 +63,25 @@ export function playTrack(message: Discord.Message, tracks: models.Track[]) {
         debug('left the voice-channel for guild: %s since there are no more tracks to play', guildID);
       }
     });
+}
+
+/**
+ * Find the current voice-connection for the guild where the message have been
+ * sent then we can end the dispatcher prematurely by sending a `end` event
+ * with a `'skip'` reason (the reason is very important in this case).
+ *
+ * @param message the discord message that initiated the `stopTrack`
+ */
+export function stopTrack(message: Discord.Message) {
+  const client = message.client;
+  const guildID = message.guild.id;
+  const guildVoiceConnection = client.voiceConnections.get(guildID);
+
+  if (guildVoiceConnection && guildVoiceConnection.speaking) {
+    // This will emit 2 times the `end` event, so we need to pass a reason to
+    // filter this event emitted.
+    guildVoiceConnection.dispatcher.end('skip');
+  } else {
+    message.channel.send('Unable to skip the track, make sure the bot is playing');
+  }
 }
