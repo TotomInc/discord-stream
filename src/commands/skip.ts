@@ -1,6 +1,5 @@
 import { Command } from '../models';
 import * as player from '../player';
-import * as utils from '../utils';
 
 module.exports = {
   name: 'skip',
