@@ -40,3 +40,7 @@ client.on('message', async (message) => {
     message.reply('There was an error while trying to execute this command :think:');
   }
 });
+
+client.on('ready', () => {
+  client.user.setActivity(`for ${client.guilds.array().length} guilds | $help`);
+});
