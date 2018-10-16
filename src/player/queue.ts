@@ -60,6 +60,23 @@ export function removeFirstTrack(message: Discord.Message): models.Track[] {
 }
 
 /**
+ * Delete a `guildQueue` if it exists for the current `guildID`.
+ *
+ * @param message the discord message that initiated this
+ */
+export function removeQueue(message: Discord.Message): void {
+  const guildID = message.guild.id;
+  const queueExists = queues.has(guildID);
+
+  if (!queueExists) {
+    debug('unexpected error, tried to remove a queue for guildID: %s but it doesn\'t exist', guildID);
+    return;
+  } else {
+    queues.delete(guildID);
+  }
+}
+
+/**
  * Returns the current queue for the guild where the message have been sent.
  *
  * @param message the discord message that initiated this
