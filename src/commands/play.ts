@@ -41,7 +41,6 @@ module.exports = {
     /** If author is in the same voice-channel of the bot */
     else if (message.member.voiceChannelID && client.voiceConnections.has(message.guild.id)) {
       providers.handleProvider(provider, query, message)
-        .then(() => providers.handleProvider(provider, query, message))
         .then((tracks) => player.addTracks(message, tracks || []))
         .then((queue) => player.playTrack(message, queue));
     } else {
