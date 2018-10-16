@@ -85,3 +85,22 @@ export function stopTrack(message: Discord.Message) {
     message.channel.send('Unable to skip the track, make sure the bot is playing');
   }
 }
+
+/**
+ * When calling this function we make sure the bot is safely exiting a voice-
+ * channel by removing the `guildQueue` and disconnecting the
+ * `voiceConnection`.
+ *
+ * @param message the discord message that initiated the `cleanPlayer`
+ */
+export function cleanPlayer(message: Discord.Message) {
+  const client = message.client;
+  const guildID = message.guild.id;
+  const guildVoiceConnection = client.voiceConnections.get(guildID);
+
+  queue.removeQueue(message);
+
+  if (guildVoiceConnection && guildVoiceConnection.speaking) {
+    guildVoiceConnection.disconnect();
+  }
+}
