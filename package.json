@@ -1,0 +1,30 @@
+{
+  "name": "discord-stream",
+  "version": "0.0.0",
+  "main": "dist/index.js",
+  "author": "TotomInc <cazade.thomas@gmail.com>",
+  "license": "MIT",
+  "scripts": {
+    "dev": "DEBUG=streamer:* nodemon",
+    "build": "rm -rf ./dist && tsc -p tsconfig.json",
+    "start": "npm run build && node ./dist"
+  },
+  "dependencies": {
+    "axios": "^0.18.0",
+    "discord.js": "^11.4.2",
+    "dotenv": "^6.0.0",
+    "moment": "^2.22.2",
+    "node-opus": "^0.3.0",
+    "typescript": "^3.1.1",
+    "ytdl-core": "^0.26.1"
+  },
+  "devDependencies": {
+    "@types/debug": "^0.0.31",
+    "@types/dotenv": "^4.0.3",
+    "@types/node": "^10.11.4",
+    "debug": "^4.0.1",
+    "nodemon": "^1.18.4",
+    "ts-node": "^7.0.1",
+    "tslint": "^5.11.0"
+  }
+}
