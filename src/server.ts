@@ -22,11 +22,11 @@ export const commands = utils.loadCommands();
  * arguments.
  */
 client.on('message', async (message) => {
-  if (!message.content.startsWith('$') || message.author.bot) {
+  if (!message.content.startsWith('$str') || message.author.bot) {
     return;
   }
 
-  const args = message.content.trim().slice(1).split(/ +/);
+  const args = message.content.trim().slice(5).split(/ +/);
   const command = args.shift()!.toLowerCase();
 
   if (!commands.has(command)) {
@@ -42,5 +42,5 @@ client.on('message', async (message) => {
 });
 
 client.on('ready', () => {
-  client.user.setActivity(`for ${client.guilds.array().length} guilds | $help`);
+  client.user.setActivity(`for ${client.guilds.array().length} guilds | $str help`);
 });
