@@ -7,7 +7,7 @@ module.exports = {
   description: 'show all queued tracks',
   execute: (message, args) => {
     const tracks = player.getQueue(message);
-    const richEmbed = utils.generateRichEmbed('Queued tracks');
+    const richEmbed = utils.generateRichEmbed('Queued tracks', message.client);
 
     if (tracks.length === 0) {
       richEmbed.addField('There are no queued tracks.', 'You can add tracks with the play command.');

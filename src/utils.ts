@@ -32,12 +32,20 @@ export function loadCommands() {
  *
  * @param title name of the rich-embed
  */
-export function generateRichEmbed(title: string) {
-  return new Discord.RichEmbed()
+export function generateRichEmbed(title: string, client: Discord.Client) {
+  const avatarURL = client.user.avatarURL;
+  const richEmbed = new Discord.RichEmbed()
     .setColor('#c0392b')
     .setTitle(title)
     .setFooter('Got a bug? Contact TotomInc#3203')
     .setTimestamp();
+
+  richEmbed.author = {
+    name: client.user.username,
+    icon_url: avatarURL,
+  }
+
+  return richEmbed;
 }
 
 /**

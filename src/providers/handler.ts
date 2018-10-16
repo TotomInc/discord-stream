@@ -45,7 +45,7 @@ export function handleProvider(provider: models.providers, query: string, messag
           debug('was expecting a track at the first position of the array but got nothing: %O', response);
           message.channel.send('There was an unexpected error, please try again or something else');
         } else {
-          const richEmbed = utils.generateRichEmbed('Queued a new track')
+          const richEmbed = utils.generateRichEmbed('Queued a new track', message.client)
             .addField(track.title, `${utils.secondsToHHMMSS(track.duration)} — Added by ${track.initiator.author.username}`)
             .setThumbnail(track.thumbnailURL)
             .setURL(track.url);
@@ -58,7 +58,7 @@ export function handleProvider(provider: models.providers, query: string, messag
       // This means we are trying to import a playlist, make sure we really
       // want to import it in the queue by creating a reaction collector
       if (response.length > 1) {
-        const richEmbed = utils.generateRichEmbed('Queued a new playlist')
+        const richEmbed = utils.generateRichEmbed('Queued a new playlist', message.client)
           .addField(`Added ${response.length} tracks into the queue`, 'If this is an error, you clear the queue');
 
         debug('handled an array of tracks from a playlist form provider: %s', provider);
