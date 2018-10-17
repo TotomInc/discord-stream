@@ -27,6 +27,8 @@ module.exports = {
       return message.channel.send('Sorry I don\'t support this provider');
     }
 
+    message.channel.send(`:mag_right: Searching on **${provider}**: \`${query}\``);
+
     /** If author is in a voice-channel and bot is not */
     if (member.voiceChannelID && !client.voiceConnections.has(message.guild.id)) {
       member.voiceChannel.join()
