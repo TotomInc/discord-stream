@@ -35,7 +35,7 @@ export function loadCommands() {
 export function generateRichEmbed(title: string, client: Discord.Client) {
   const avatarURL = client.user.avatarURL;
   const richEmbed = new Discord.RichEmbed()
-    .setColor('#c0392b')
+    .setColor('#c0f289')
     .setTitle(title)
     .setFooter('Got a bug? Contact TotomInc#3203')
     .setTimestamp();
