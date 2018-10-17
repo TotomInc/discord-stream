@@ -91,3 +91,27 @@ export function cleanPlayer(message: Discord.Message) {
     guildVoiceConnection.disconnect();
   }
 }
+
+/**
+ * Set the volume of the current dispatcher stream, convert the volume to a
+ * value between 0 and 1. Returns a boolean if the volume have been correctly
+ * edited.
+ *
+ * @param message the discord message that initiated the `setVolume`
+ * @param volume a number between 0 and 100 (in percent)
+ */
+export function setVolume(message: Discord.Message, volume: number): boolean {
+  const guildID = message.guild.id;
+  const guildVoiceConnection = message.client.voiceConnections.get(guildID);
+
+  if (!guildVoiceConnection) {
+    message.reply('I am not in a voice-channel.');
+    return false;
+  } else if (guildVoiceConnection && !guildVoiceConnection.speaking) {
+    message.reply('I am not speaking.');
+    return false;
+  } else {
+    guildVoiceConnection.dispatcher.setVolume(volume / 100);
+    return true;
+  }
+}
