@@ -1,20 +1,16 @@
+import dotenv from 'dotenv';
 import Discord from 'discord.js';
 import Debug from 'debug';
-import http from 'http';
 
 import * as utils from './utils';
 
-const debug = Debug('streamer:server');
+dotenv.config();
 
-/**
- * This is required for the deployment on `zeit.co` or the deployment will fail
- * since it can't see any app listening on an HTTP port. We don't run anything
- * on ir, it is just a dummy http-server to trick `zeit.co`.
- */
-const webserver = http.createServer().listen(3000);
+const debug = Debug('streamer:server');
 
 export const client = new Discord.Client();
 export const commands = utils.loadCommands();
+export const prefix = process.env['PREFIX'] as string;
 
 /**
  * Listen for a new message sent, make sure it starts with the prefix and is
@@ -30,7 +26,7 @@ export const commands = utils.loadCommands();
  * arguments.
  */
 client.on('message', async (message) => {
-  if (!message.content.startsWith('$str') || message.author.bot) {
+  if (!message.content.startsWith(prefix) || message.author.bot) {
     return;
   }
 
@@ -50,5 +46,5 @@ client.on('message', async (message) => {
 });
 
 client.on('ready', () => {
-  client.user.setActivity(`for ${client.guilds.array().length} guilds | $str help`);
+  client.user.setActivity(`for ${client.guilds.array().length} guilds | ${prefix} help`);
 });
