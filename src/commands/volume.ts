@@ -1,5 +1,4 @@
 import { Command } from '../models';
-import * as utils from '../utils';
 import * as player from '../player';
 
 module.exports = {
