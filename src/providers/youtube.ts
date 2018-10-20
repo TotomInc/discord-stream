@@ -105,6 +105,14 @@ function fetchPlaylistMetadata(playlistID: string): Promise<models.YoutubePlayli
     });
 }
 
+/**
+ * Fetch tracks matching the search query then get the first track from this
+ * search and uses its `videoId`. Once done, fetch metadata of this track
+ * using the `fetchVideoMetadata` method.
+ *
+ * @param query a search query
+ * @param message the discord message initiator
+ */
 function fetchSearchVideos(query: string, message: Discord.Message) {
   return fetchSearchResult(query)
     .then((searchResult) => {
@@ -119,6 +127,12 @@ function fetchSearchVideos(query: string, message: Discord.Message) {
     .catch((error: Error) => debug('unable to fetch metatada of a video from a search query: %s with search query: %s', error.message, query));
 }
 
+/**
+ * Execute a search with the specified query on the YouTube API.
+ * Returns the raw response from the API.
+ *
+ * @param query a search query
+ */
 function fetchSearchResult(query: string) {
   return Axios.get<models.YoutubeSearchListResponse>('https://www.googleapis.com/youtube/v3/search', {
     params: {
