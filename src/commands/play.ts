@@ -9,18 +9,15 @@ const debug = Debug('streamer:play');
 
 module.exports = {
   name: 'play',
-  description: 'play a track based on a URL (YouTube, SoundCloud, raw MP3 URL, ...)',
+  description: 'play a track based on a URL (YouTube, SoundCloud, raw MP3 URL, ...) or search query (will search on YouTube)',
   execute: (message, args) => {
     const client = message.client;
     const member = message.member;
     const query = args.join(' ');
 
-    /** If query is not a URL */
-    if (!utils.isURL(query)) {
-      return message.channel.send('Sorry I only support URLs and not search queries');
-    }
-
-    const provider = utils.detectURLProvider(query);
+    const provider = (!utils.isURL(query))
+      ? 'youtube'
+      : utils.detectURLProvider(query);
 
     /** If provider is not supported */
     if (!provider) {

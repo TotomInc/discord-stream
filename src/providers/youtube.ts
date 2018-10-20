@@ -33,7 +33,8 @@ export function fetchHandler(url: string, message: Discord.Message): Promise<mod
     return fetchVideoMetadata(url, message)
       .then((metadata) => (metadata) ? [metadata] : []);
   } else {
-    return new Promise((res, rej) => res([]));
+    return fetchSearchVideos(url, message)
+      .then((metadata) => (metadata) ? [metadata] : []);
   }
 }
 
@@ -77,7 +78,7 @@ function fetchPlaylistVideosMetadata(url: string, message: Discord.Message) {
       debug('successfully fetched metadata from all videos in the playlist with playlistID: %s', playlistID);
       return videos.filter((video) => !!video) as models.Track[];
     })
-    .catch((error: Error) => debug('unable to fetch metadata of all videos from a playlist: %S with playlistID: %s', error.message, playlistID));
+    .catch((error: Error) => debug('unable to fetch metadata of all videos from a playlist: %s with playlistID: %s', error.message, playlistID));
 }
 
 /**
@@ -101,6 +102,38 @@ function fetchPlaylistMetadata(playlistID: string): Promise<models.YoutubePlayli
     })
     .catch((error: AxiosError | string) => {
       debug('unable to fetch metadata of a playlist: %s using YOUTUBE_TOKEN %S', (error instanceof Error) ? error.message : error, process.env['YOUTUBE_TOKEN']);
+    });
+}
+
+function fetchSearchVideos(query: string, message: Discord.Message) {
+  return fetchSearchResult(query)
+    .then((searchResult) => {
+      const firstVideoID = (searchResult)
+        ? searchResult.items[0].id.videoId
+        : 'unknown';
+
+      const videoURL = `https://youtube.com/watch?v=${firstVideoID}`;
+
+      return fetchVideoMetadata(videoURL, message);
+    })
+    .catch((error: Error) => debug('unable to fetch metatada of a video from a search query: %s with search query: %s', error.message, query));
+}
+
+function fetchSearchResult(query: string) {
+  return Axios.get<models.YoutubeSearchListResponse>('https://www.googleapis.com/youtube/v3/search', {
+    params: {
+      q: query,
+      type: 'video',
+      part: 'snippet',
+      key: process.env['YOUTUBE_TOKEN'],
+    },
+  })
+    .then((response) => {
+      debug('successfully fetched tracks from a search query: %s', query);
+      return response.data;
+    })
+    .catch((error: AxiosError | string) => {
+      debug('unable to fetch tracks from a search query: %s using YOUTUBE_TOKEN %S', (error instanceof Error) ? error.message : error, process.env['YOUTUBE_TOKEN']);
     });
 }
 

@@ -19,3 +19,26 @@ export interface YoutubePlaylistItem {
     };
   };
 }
+
+export interface YoutubeSearchListResponse {
+  kind: 'youtube#searchListResponse';
+  etag: string;
+  nextPageToken: string;
+  prevPageToken: string;
+  regionCode: string;
+  pageInfo: {
+    totalResults: number;
+    resultsPerPage: number;
+  };
+  items: YoutubeSearchResult[];
+}
+
+export interface YoutubeSearchResult {
+  kind: 'youtube#searchResult';
+  etag: string;
+  id: {
+    kind: string;
+    videoId: string;
+  };
+  snippet: any;
+}
