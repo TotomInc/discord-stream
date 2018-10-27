@@ -9,7 +9,7 @@ const debug = Debug('streamer:play');
 
 module.exports = {
   name: 'play',
-  description: 'play a track based on a URL (YouTube, SoundCloud, raw MP3 URL, ...) or search query (will search on YouTube)',
+  description: 'play a track based on a URL (YouTube, SoundCloud, radio-stream, ...) or search query (will search on YouTube)',
   execute: (message, args) => {
     const client = message.client;
     const member = message.member;
