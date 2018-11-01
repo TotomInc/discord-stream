@@ -4,7 +4,9 @@ import { Readable } from 'stream';
 
 import * as models from '../models';
 import * as utils from '../utils';
+
 import * as youtube from './youtube';
+import * as soundcloud from './soundcloud';
 
 const debug = Debug('streamer:handler');
 
@@ -14,10 +16,18 @@ const debug = Debug('streamer:handler');
  * @param provider provider of the url
  * @param track track object
  */
-export function handleStreamProvider(provider: models.providers, track: models.Track): Readable {
+export function handleStreamProvider(provider: models.providers, track: models.Track): { stream?: Readable, arbitraryURL?: string } {
   switch (provider) {
-    case "youtube":
-      return youtube.getReadableStream(track);
+    case 'youtube':
+      return {
+        stream: youtube.getReadableStream(track),
+      };
+      break;
+
+    case 'soundcloud':
+      return {
+        arbitraryURL: `${track.streamURL}?client_id=${process.env['SOUNDCLOUD_TOKEN']}`,
+      };
       break;
   }
 }
@@ -81,10 +91,14 @@ export function handleProvider(provider: models.providers, query: string, messag
  * @param query the query could be an url or a search query
  * @param message the discord message that initiated this
  */
-function switchFetchMetadataProvider(provider: models.providers, query: string, message: Discord.Message) {
+function switchFetchMetadataProvider(provider: models.providers, query: string, message: Discord.Message): Promise<models.Track[]> {
   switch (provider) {
     case 'youtube':
       return youtube.fetchHandler(query, message);
+      break;
+
+    case 'soundcloud':
+      return soundcloud.fetchHandler(query, message);
       break;
   }
 }

@@ -6,6 +6,7 @@ import * as player from '../player';
 import * as utils from '../utils';
 
 const debug = Debug('streamer:play');
+const providersList = utils.providersList();
 
 module.exports = {
   name: 'play',
@@ -19,14 +20,16 @@ module.exports = {
       ? 'youtube'
       : utils.detectURLProvider(query);
 
-    /** If provider is not supported */
+    /**
+     * If provider unefined, it means the provider is not supported
+     */
     if (!provider) {
-      return message.channel.send('Sorry I don\'t support this provider');
+      return message.channel.send(`Sorry I don\'t support this provider. Here is a list of the supported providers: ${providersList.join(', ')}`);
     }
 
     message.channel.send(`:mag_right: Searching on **${provider}**: \`${query}\``);
 
-    /** If author is in a voice-channel and bot is not */
+    /** If author is in a voice-channel and the bot is not */
     if (member.voiceChannelID && !client.voiceConnections.has(message.guild.id)) {
       member.voiceChannel.join()
         .catch((err: Error) => {

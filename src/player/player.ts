@@ -41,18 +41,33 @@ export function playTrack(message: Discord.Message, tracks: models.Track[]) {
 
   const stream = providers.handleStreamProvider(track.provider, track);
 
-  return guildVoiceConnection.playStream(stream)
-    .on('error', (error) => debug('unexpected error while trying to play a track: %s', error.message))
-    .on('start', () => debug('started audio stream for guildID: %s', guildID))
-    .on('end', (reason) => {
-      const guildQueue = queue.removeFirstTrack(message);
+  if (stream.stream && !stream.arbitraryURL) {
+    return guildVoiceConnection.playStream(stream.stream)
+      .on('error', (error) => debug('unexpected error while trying to play a track: %s', error.message))
+      .on('start', () => debug('started audio stream for guildID: %s', guildID))
+      .on('end', (reason) => {
+        const guildQueue = queue.removeFirstTrack(message);
 
-      if (guildQueue.length > 0) {
-        playTrack(guildQueue[0].initiator, guildQueue);
-      } else {
-        guildVoiceConnection.channel.leave();
-      }
-    });
+        if (guildQueue.length > 0) {
+          playTrack(guildQueue[0].initiator, guildQueue);
+        } else {
+          guildVoiceConnection.channel.leave();
+        }
+      });
+  } else if (stream.arbitraryURL && !stream.stream) {
+    return guildVoiceConnection.playArbitraryInput(stream.arbitraryURL)
+      .on('error', (error) => debug('unexpected error while trying to play a track: %s', error.message))
+      .on('start', () => debug('started audio stream for guildID: %s', guildID))
+      .on('end', (reason) => {
+        const guildQueue = queue.removeFirstTrack(message);
+
+        if (guildQueue.length > 0) {
+          playTrack(guildQueue[0].initiator, guildQueue);
+        } else {
+          guildVoiceConnection.channel.leave();
+        }
+      });
+  }
 }
 
 /**
