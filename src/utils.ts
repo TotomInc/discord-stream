@@ -8,7 +8,7 @@ import Moment from 'moment';
 import { Command, providers } from './models';
 
 const debug = Debug('streamer:utils');
-const providers: providers[] = ['youtube'];
+const providers: providers[] = ['youtube', 'soundcloud'];
 
 /**
  * Load all command files in `src/commands` and return a collection of commands.
@@ -86,4 +86,11 @@ export function secondsToHHMMSS(seconds: number | string): string {
     .startOf('day')
     .seconds(val)
     .format('mm:ss');
+}
+
+/**
+ * Return a list of supported providers.
+ */
+export function providersList(): string[] {
+  return providers;
 }
