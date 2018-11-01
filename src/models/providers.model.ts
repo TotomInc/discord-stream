@@ -1,1 +1,1 @@
-export type providers = 'youtube';
+export type providers = 'youtube' | 'soundcloud';
