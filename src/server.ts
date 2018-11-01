@@ -41,7 +41,7 @@ client.on('message', async (message) => {
     commands.get(command)!.execute(message, args);
   } catch (error) {
     debug('could not execute command: %s', message.content);
-    message.reply('There was an error while trying to execute this command :think:');
+    message.reply('There was an error while trying to execute this command, please try again later.');
   }
 });
 
