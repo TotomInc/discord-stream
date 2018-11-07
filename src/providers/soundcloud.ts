@@ -81,7 +81,8 @@ function mapTrackToTrack(track: models.SoundcloudTrack, message: Discord.Message
     description: track.description,
     views: track.playback_count.toString(),
     thumbnailURL: track.artwork_url,
-    duration: track.duration.toString(),
+    // Track duration from Soundcloud API is in milliseconds
+    duration: (track.duration / 1000).toString(),
     initiator: message,
   }
 }
