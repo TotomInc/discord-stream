@@ -30,7 +30,7 @@ client.on('message', async (message) => {
     return;
   }
 
-  const args = message.content.trim().slice(5).split(/ +/);
+  const args = message.content.trim().slice(prefix.length + 1).split(/ +/);
   const command = args.shift()!.toLowerCase();
 
   if (!commands.has(command)) {
