@@ -18,9 +18,7 @@ module.exports = {
 
     if (tracks.length <= 0) {
       richEmbed.addField('There are no queued tracks.', 'You can add tracks with the play command.');
-    }
-
-    if (pageIndexArg && !isNaN(parseInt(pageIndexArg))) {
+    } else if (pageIndexArg && !isNaN(parseInt(pageIndexArg))) {
       const pageIndex = parseInt(pageIndexArg);
 
       if (pageIndex > tracksPages.length || pageIndex < 1) {
@@ -40,6 +38,6 @@ module.exports = {
       richEmbed.setTitle(`Queued tracks - page 1/${tracksPages.length}`);
     }
 
-    message.channel.send(richEmbed);
+    return message.channel.send(richEmbed);
   },
 } as Command;
