@@ -60,6 +60,31 @@ export function removeFirstTrack(message: Discord.Message): models.Track[] {
 }
 
 /**
+ * Similar to `Array#splice`, specify a range of tracks to remove from the
+ * queue. Returns the new state of the `guildQueue`.
+ *
+ * @param startIndex index to start for `Array#splice`
+ * @param endIndex index to end for `Array#splice`
+ * @param message the Discord message that initiated this
+ */
+export function removeTracks(startIndex: number, endIndex: number, message: Discord.Message): models.Track[] {
+  const guildID = message.guild.id;
+  const queueExists = queues.has(guildID);
+
+  if (!queueExists) {
+    debug('unexpected error, tried to remove tracks from a non-exising queue for guildID: %s at startIndex %s and endIndex %s', guildID, startIndex, endIndex);
+    return [];
+  } else {
+    const guildQueue = queues.get(guildID)!;
+    const removed = guildQueue.splice(startIndex, endIndex);
+    queues.set(guildID, guildQueue);
+
+    debug('removed tracks %s (startIndex %s, endIndex %s) from the guildQueue for guildID: %s, now have %s tracks', removed.length, startIndex, endIndex, guildID, guildQueue.length);
+    return guildQueue;
+  }
+}
+
+/**
  * Delete a `guildQueue` if it exists for the current `guildID`.
  *
  * @param message the discord message that initiated this
