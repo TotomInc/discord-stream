@@ -69,7 +69,7 @@ export function handleProvider(provider: models.providers, query: string, messag
       // want to import it in the queue by creating a reaction collector
       if (response.length > 1) {
         const richEmbed = utils.generateRichEmbed('Queued a new playlist', message.client)
-          .addField(`Added ${response.length} tracks into the queue`, 'If this is an error, you clear the queue');
+          .addField(`Added ${response.length} tracks into the queue`, 'If this is an error, you can clear the queue');
 
         debug('handled an array of tracks from a playlist form provider: %s', provider);
         message.channel.send(richEmbed);
