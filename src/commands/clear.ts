@@ -1,3 +1,5 @@
+import * as Discord from 'discord.js';
+
 import { Command } from '../models';
 import * as player from '../player';
 
@@ -6,7 +8,7 @@ module.exports = {
   description: 'remove all queued tracks (except the currently playing track)',
   execute: (message, args) => {
     const tracks = player.getQueue(message);
-    const guildVoiceConnection = message.guild.voiceConnection;
+    const guildVoiceConnection: Discord.VoiceConnection | null = message.guild.voiceConnection;
 
     if (tracks.length <= 0) {
       return message.reply('there are no tracks in the queue.');
