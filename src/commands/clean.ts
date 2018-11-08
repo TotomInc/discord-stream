@@ -12,6 +12,9 @@ module.exports = {
         const deletePromises = botMessages.map((botMessage) => botMessage.delete());
 
         return Promise.all(deletePromises);
+      })
+      .catch(() => {
+        return message.channel.send('Something went wrong while trying to delete the bot messages.');
       });
   },
 } as Command;
