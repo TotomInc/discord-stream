@@ -55,8 +55,9 @@ export function handleProvider(provider: models.providers, query: string, messag
           debug('was expecting a track at the first position of the array but got nothing: %O', response);
           message.channel.send('There was an unexpected error, please try again or something else');
         } else {
+          // For some weird reasons, discord.js add a strange symbol with interpolated strings
           const richEmbed = utils.generateRichEmbed('Queued a new track', message.client)
-            .addField(track.title, `${utils.secondsToHHMMSS(track.duration)} — Added by ${track.initiator.author.username}`)
+            .addField(track.title, utils.secondsToHHMMSS(track.duration) + ' — Added by ' + track.initiator.author.username)
             .setThumbnail(track.thumbnailURL)
             .setURL(track.url);
 
