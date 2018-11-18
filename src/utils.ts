@@ -83,9 +83,9 @@ export function secondsToHHMMSS(seconds: number | string): string {
   const val = (typeof seconds === 'string') ? parseInt(seconds) : seconds;
 
   return Moment()
-    .startOf('day')
-    .seconds(val)
-    .format('mm:ss');
+    .utc(false)
+    .set({ hour: 0, minute: 0, second: val, millisecond: 0 })
+    .format((val >= 3600) ? 'HH:mm:ss' : 'mm:ss');
 }
 
 /**
