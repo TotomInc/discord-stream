@@ -12,6 +12,10 @@ export const client = new Discord.Client();
 export const commands = utils.loadCommands();
 export const prefix = process.env['PREFIX'] as string;
 
+/** Interval duration set to 30 minutes */
+const statusIntervalDuration = 1.8e+6;
+let statusInterval: NodeJS.Timer | undefined;
+
 /**
  * Listen for a new message sent, make sure it starts with the prefix and is
  * not from a bot.
@@ -46,5 +50,7 @@ client.on('message', async (message) => {
 });
 
 client.on('ready', () => {
-  client.user.setActivity(`for ${client.guilds.array().length} guilds | ${prefix} help`);
+  statusInterval = setInterval(() => {
+    client.user.setActivity(`for ${client.guilds.array().length} guilds | ${prefix} help`);
+  }, statusIntervalDuration);
 });
