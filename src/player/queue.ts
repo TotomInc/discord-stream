@@ -118,3 +118,22 @@ export function getQueue(message: Discord.Message): models.Track[] {
     return guildQueue;
   }
 }
+
+/**
+ * Returns the current track that the bot is playing for the guild where the
+ * message have been sent.
+ *
+ * @param message the discord message that initiated this
+ */
+export function getCurrentTrack(message: Discord.Message): models.Track | void {
+  const guildID = message.guild.id;
+  const queueExists = queues.has(guildID);
+
+  if (!queueExists) {
+    return;
+  } else {
+    const guildQueue = queues.get(guildID)!;
+
+    return guildQueue[0];
+  }
+}
