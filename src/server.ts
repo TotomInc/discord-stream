@@ -3,6 +3,7 @@ import Discord from 'discord.js';
 import Debug from 'debug';
 
 import * as utils from './utils';
+import { prefixes } from './prefixes';
 
 dotenv.config();
 
@@ -30,11 +31,24 @@ let statusInterval: NodeJS.Timer | undefined;
  * arguments.
  */
 client.on('message', async (message) => {
-  if (!message.content.startsWith(prefix) || message.author.bot) {
+  const text = message.content;
+  const hasCustomPrefix = prefixes.has(message.guild.id);
+  const customPrefix = (hasCustomPrefix)
+    ? prefixes.get(message.guild.id)
+    : undefined;
+
+  if (
+    (!hasCustomPrefix && !text.startsWith(prefix))
+    || (hasCustomPrefix && !text.startsWith(prefix) && !text.startsWith(customPrefix!))
+    || message.author.bot
+  ) {
     return;
   }
 
-  const args = message.content.trim().slice(prefix.length + 1).split(/ +/);
+  const args = (text.startsWith(customPrefix!))
+    ? text.trim().slice(customPrefix!.length).trim().split(/ +/)
+    : text.trim().slice(prefix.length).trim().split(/ +/);
+
   const command = args.shift()!.toLowerCase();
 
   if (!commands.has(command)) {
@@ -44,7 +58,7 @@ client.on('message', async (message) => {
   try {
     commands.get(command)!.execute(message, args);
   } catch (error) {
-    debug('could not execute command: %s', message.content);
+    debug('could not execute command: %s', text);
     message.reply('There was an error while trying to execute this command, please try again later.');
   }
 });
