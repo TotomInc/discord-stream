@@ -1,4 +1,5 @@
 import { Command } from '../models';
+import * as prefixes from '../prefixes';
 import * as utils from '../utils';
 
 module.exports = {
@@ -7,6 +8,11 @@ module.exports = {
   execute: (message, args) => {
     const commands = utils.loadCommands();
     const embed = utils.generateRichEmbed('List of commands', message.client);
+    const customPrefix = prefixes.getPrefix(message);
+
+    if (customPrefix) {
+      embed.addField('I have a custom prefix on this server', `You can also call me by using the **${customPrefix}** prefix.`);
+    }
 
     commands.forEach((command) => embed.addField(command.name, command.description));
     message.channel.send(embed);
