@@ -1,6 +1,7 @@
 import dotenv from 'dotenv';
 import Debug from 'debug';
 
+import * as prefixes from './prefixes';
 import { client } from './server';
 
 dotenv.config();
@@ -8,7 +9,8 @@ dotenv.config();
 const debug = Debug('streamer:index');
 const token = process.env['DISCORD_TOKEN'];
 
-client.login(token)
+prefixes.loadPrefixes()
+  .then(() => client.login(token))
   .then(() => debug('successfully logged in'))
   .catch((err: Error) => {
     debug('could not log in: %s', err.message);
