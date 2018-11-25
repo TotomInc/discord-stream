@@ -7,7 +7,7 @@
   "scripts": {
     "dev": "DEBUG=streamer:* nodemon",
     "build": "rm -rf ./dist && tsc -p tsconfig.json",
-    "start": "npm run build && node ./dist"
+    "start": "npm run build && node ./dist/src"
   },
   "dependencies": {
     "axios": "^0.18.0",
