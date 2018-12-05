@@ -7,6 +7,11 @@ import * as queue from './queue';
 
 const debug = Debug('streamer:player');
 
+const streamOptions: Discord.StreamOptions = {
+  passes: 3,
+  bitrate: 'auto',
+};
+
 /**
  * Try to play a track for the current voice-connection of the `guildID` from
  * the message. Can't play a track if we don't have a voice-connection or if
@@ -42,7 +47,7 @@ export function playTrack(message: Discord.Message, tracks: models.Track[]) {
   const stream = providers.handleStreamProvider(track.provider, track);
 
   if (stream.stream && !stream.arbitraryURL) {
-    return guildVoiceConnection.playStream(stream.stream)
+    return guildVoiceConnection.playStream(stream.stream, streamOptions)
       .on('error', (error) => debug('unexpected error while trying to play a track: %s', error.message))
       .on('start', () => debug('started audio stream for guildID: %s', guildID))
       .on('end', (reason) => {
@@ -55,7 +60,7 @@ export function playTrack(message: Discord.Message, tracks: models.Track[]) {
         }
       });
   } else if (stream.arbitraryURL && !stream.stream) {
-    return guildVoiceConnection.playArbitraryInput(stream.arbitraryURL)
+    return guildVoiceConnection.playArbitraryInput(stream.arbitraryURL, streamOptions)
       .on('error', (error) => debug('unexpected error while trying to play a track: %s', error.message))
       .on('start', () => debug('started audio stream for guildID: %s', guildID))
       .on('end', (reason) => {
