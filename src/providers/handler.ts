@@ -16,7 +16,7 @@ const debug = Debug('streamer:handler');
  * @param provider provider of the url
  * @param track track object
  */
-export function handleStreamProvider(provider: models.providers, track: models.Track): { stream?: Readable, arbitraryURL?: string } {
+export function handleStreamProvider(provider: models.providers, track: models.Track): models.StreamProvider {
   switch (provider) {
     case 'youtube':
       return {
