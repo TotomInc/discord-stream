@@ -46,32 +46,10 @@ export function playTrack(message: Discord.Message, tracks: models.Track[]) {
 
   const stream = providers.handleStreamProvider(track.provider, track);
 
-  if (stream.stream && !stream.arbitraryURL) {
-    return guildVoiceConnection.playStream(stream.stream, streamOptions)
-      .on('error', (error) => debug('unexpected error while trying to play a track: %s', error.message))
-      .on('start', () => debug('started audio stream for guildID: %s', guildID))
-      .on('end', (reason) => {
-        const guildQueue = queue.removeFirstTrack(message);
-
-        if (guildQueue.length > 0) {
-          playTrack(guildQueue[0].initiator, guildQueue);
-        } else {
-          guildVoiceConnection.channel.leave();
-        }
-      });
+  if (stream.stream) {
+    _playReadableStream(guildVoiceConnection, message, stream);
   } else if (stream.arbitraryURL && !stream.stream) {
-    return guildVoiceConnection.playArbitraryInput(stream.arbitraryURL, streamOptions)
-      .on('error', (error) => debug('unexpected error while trying to play a track: %s', error.message))
-      .on('start', () => debug('started audio stream for guildID: %s', guildID))
-      .on('end', (reason) => {
-        const guildQueue = queue.removeFirstTrack(message);
-
-        if (guildQueue.length > 0) {
-          playTrack(guildQueue[0].initiator, guildQueue);
-        } else {
-          guildVoiceConnection.channel.leave();
-        }
-      });
+    _playArbitraryInput(guildVoiceConnection, message, stream);
   }
 }
 
@@ -133,5 +111,63 @@ export function setVolume(message: Discord.Message, volume: number): boolean {
   } else {
     guildVoiceConnection.dispatcher.setVolume(volume / 100);
     return true;
+  }
+}
+
+/**
+ * Play a readable stream.
+ *
+ * @param guildVoiceConnection the guild-voice connection
+ * @param message the message that initiated this
+ * @param stream the stream-provider object to determine nature of the resource
+ */
+function _playReadableStream(
+  guildVoiceConnection: Discord.VoiceConnection,
+  message: Discord.Message,
+  stream: models.StreamProvider,
+): Discord.StreamDispatcher {
+  const guildID = message.guild.id;
+
+  return guildVoiceConnection.playStream(stream.stream!, streamOptions)
+    .on('error', (error) => debug('error while trying to play a track: %s', error.message))
+    .on('start', () => debug('started audio stream for guildID: %s', guildID))
+    .on('end', (reason) => _onTrackEnd(reason, message));
+}
+
+/**
+ * Play an arbitrary input (URLs).
+ *
+ * @param guildVoiceConnection the guild-voice connection
+ * @param message the message that initiated this
+ * @param stream the stream-provider object to determine nature of the resource
+ */
+function _playArbitraryInput(
+  guildVoiceConnection: Discord.VoiceConnection,
+  message: Discord.Message,
+  stream: models.StreamProvider,
+): Discord.StreamDispatcher {
+  const guildID = message.guild.id;
+
+  return guildVoiceConnection.playArbitraryInput(stream.arbitraryURL!, streamOptions)
+    .on('error', (error) => debug('error while trying to play a track: %s', error.message))
+    .on('start', () => debug('started audio stream for guildID: %s', guildID))
+    .on('end', (reason) => _onTrackEnd(reason, message));
+}
+
+/**
+ * Function executed when the `on#end` event have been called from a
+ * `Discord#StreamDispatched`.
+ *
+ * @param reason reason of the `on#end` event that triggered this function
+ * @param message the discord message that iniated the track
+ */
+function _onTrackEnd(reason: string, message: Discord.Message): void {
+  const guildVoiceConnection = message.client.voiceConnections.get(message.guild.id);
+  const guildQueue = queue.getQueue(message);
+
+  if (guildQueue.length > 0) {
+    playTrack(guildQueue[0].initiator, guildQueue);
+  } else if (guildVoiceConnection) {
+    guildVoiceConnection.channel.leave();
   }
 }
