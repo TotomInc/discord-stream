@@ -120,6 +120,25 @@ export function getQueue(message: Discord.Message): models.Track[] {
 }
 
 /**
+ * Replace an already existing queue.
+ *
+ * @param message the discord message that initiated this
+ * @param queue the new queue to replace
+ */
+export function replaceQueue(message: Discord.Message, queue: models.Track[]): models.Track[] {
+  const guildID = message.guild.id;
+  const queueExists = queues.has(guildID);
+
+  if (!queueExists) {
+    return [];
+  } else {
+    queues.set(guildID, queue);
+
+    return queue;
+  }
+}
+
+/**
  * Returns the current track that the bot is playing for the guild where the
  * message have been sent.
  *
