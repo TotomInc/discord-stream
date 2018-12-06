@@ -163,7 +163,7 @@ function _playArbitraryInput(
  */
 function _onTrackEnd(reason: string, message: Discord.Message): void {
   const guildVoiceConnection = message.client.voiceConnections.get(message.guild.id);
-  const guildQueue = queue.getQueue(message);
+  const guildQueue = queue.removeFirstTrack(message);
 
   if (guildQueue.length > 0) {
     playTrack(guildQueue[0].initiator, guildQueue);
