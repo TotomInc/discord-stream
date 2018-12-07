@@ -1,5 +1,7 @@
 # note
 
+[![Greenkeeper badge](https://badges.greenkeeper.io/TotomInc/discord-stream.svg)](https://greenkeeper.io/)
+
 > A music bot for Discord with high-performance, easily scalable.
 
 ## Installation
