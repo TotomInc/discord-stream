@@ -7,10 +7,10 @@
   resolved "https://registry.yarnpkg.com/@types/debug/-/debug-0.0.31.tgz#bac8d8aab6a823e91deb7f79083b2a35fa638f33"
   integrity sha512-LS1MCPaQKqspg7FvexuhmDbWUhE2yIJ+4AgVIyObfc06/UKZ8REgxGNjZc82wPLWmbeOm7S+gSsLgo75TanG4A==
 
-"@types/dotenv@^4.0.3":
-  version "4.0.3"
-  resolved "https://registry.yarnpkg.com/@types/dotenv/-/dotenv-4.0.3.tgz#ebcfc40da7bc0728b705945b7db48485ec5b4b67"
-  integrity sha512-mmhpINC/HcLGQK5ikFJlLXINVvcxhlrV+ZOUJSN7/ottYl+8X4oSXzS9lBtDkmWAl96EGyGyLrNvk9zqdSH8Fw==
+"@types/dotenv@^6.1.0":
+  version "6.1.0"
+  resolved "https://registry.yarnpkg.com/@types/dotenv/-/dotenv-6.1.0.tgz#fba2bfd1f28a46eadaa049f3313ebb89bdedfc53"
+  integrity sha512-gmbNb7V1LbJQA4MmH0hVFgqY1cyKsa6RvKC1Xrq0WBnZ0JuuvXKciXx/s8dN0LVXCJd8xO6wIaSFSyUIoGph9g==
   dependencies:
     "@types/node" "*"
 
@@ -1303,10 +1303,10 @@ lru-cache@^4.0.1:
     pseudomap "^1.0.2"
     yallist "^3.0.2"
 
-m3u8stream@^0.4.2:
-  version "0.4.2"
-  resolved "https://registry.yarnpkg.com/m3u8stream/-/m3u8stream-0.4.2.tgz#c93aefde522e4eaeac7e942cfab83973675a4f11"
-  integrity sha512-VZeobA83iQdd2TY12K2DNLuUmE1XNjN660SYU9s6A4kP7ZhFEp/bQPUpOWU2EbkFYwsonyaFT+RxLDr1OhPTRA==
+m3u8stream@^0.6.0:
+  version "0.6.1"
+  resolved "https://registry.yarnpkg.com/m3u8stream/-/m3u8stream-0.6.1.tgz#4f0a2635980c2d4ca10211b9321ca608e11f2131"
+  integrity sha512-GBUkUbXCzWNFqS6qhLThnxbAF+NNhUq2IXbF0gFQksOWmjBcXYdoC+Q4sGw+LHmK1WJgV6OnoXJuCxECh/amig==
   dependencies:
     miniget "^1.4.0"
     sax "^1.2.4"
@@ -2448,12 +2448,12 @@ yn@^2.0.0:
   resolved "https://registry.yarnpkg.com/yn/-/yn-2.0.0.tgz#e5adabc8acf408f6385fc76495684c88e6af689a"
   integrity sha1-5a2ryKz0CPY4X8dklWhMiOavaJo=
 
-ytdl-core@^0.26.1:
-  version "0.26.3"
-  resolved "https://registry.yarnpkg.com/ytdl-core/-/ytdl-core-0.26.3.tgz#33b5b8991dff0d5b6a1ffea3edf4a4e945b46549"
-  integrity sha512-KD0SLFqVNhH8N4Ie+qdusqfFmyX7SB6+y+S1MCI7vY9zS/wjRxH/zgoYRUwpP+YfXaiWzBPVIzy/5wK5asVUXQ==
+ytdl-core@^0.28.0:
+  version "0.28.0"
+  resolved "https://registry.yarnpkg.com/ytdl-core/-/ytdl-core-0.28.0.tgz#5f1ed2c9071f13c9c55e6e7187941f4ed32a2efe"
+  integrity sha512-pk1nd0MPZLyMOENUOCFLBJ/m59XFqSWPzSY2UhdG7PHBwYtROAY5QRLoYEG0V21h7i3KUeHbnFq8czio5gPKYA==
   dependencies:
     html-entities "^1.1.3"
-    m3u8stream "^0.4.2"
+    m3u8stream "^0.6.0"
     miniget "^1.4.0"
     sax "^1.1.3"
