@@ -18,7 +18,6 @@ export function fetchHandler(query: string, message: Discord.Message): Promise<m
         return response.tracks.map((track) => mapTrackToTrack(track, message));
       }
 
-      // debug('the url have been resolved but the response didn\'t matched any criteria to map-track: %O', response);
       return [];
     });
 }
