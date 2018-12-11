@@ -4,7 +4,9 @@ import Debug from 'debug';
 import * as prefixes from './prefixes';
 import { client } from './server';
 
-dotenv.config();
+dotenv.config({
+  path: require('find-config')('.env'),
+});
 
 const debug = Debug('streamer:index');
 const token = process.env['DISCORD_TOKEN'];
