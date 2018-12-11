@@ -7,7 +7,7 @@
   "scripts": {
     "dev": "DEBUG=streamer:* nodemon",
     "build": "rm -rf ./dist && tsc -p tsconfig.json",
-    "start": "npm run build && node ./dist/src",
+    "start": "node ./dist/src",
     "ndb": "ndb ."
   },
   "dependencies": {
