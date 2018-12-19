@@ -5,7 +5,9 @@ import Debug from 'debug';
 import * as utils from './utils';
 import { prefixes } from './prefixes';
 
-dotenv.config();
+dotenv.config({
+  path: require('find-config')('.env'),
+});
 
 const debug = Debug('streamer:server');
 
