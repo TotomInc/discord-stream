@@ -1,47 +1,74 @@
 import Axios, { AxiosError } from 'axios';
 import Discord from 'discord.js';
-import Debug from 'debug';
 
 import * as models from '../models';
-
-const debug = Debug('streamer:soundcloud');
+import * as utils from '../utils';
 
 export function fetchHandler(query: string, message: Discord.Message): Promise<models.Track[]> {
-  return resolveURL(query)
-    .then((response) => {
-      if (!response) {
-        debug('response is empty, the url may not have been resolved');
-        return [];
-      } else if (isTrackURL(response)) {
-        return [mapTrackToTrack(response, message)];
-      } else if (isPlaylistURL(response)) {
-        return response.tracks.map((track) => mapTrackToTrack(track, message));
-      }
+  /** If query is an URL, try to determine what type of SoundCloud URL */
+  if (utils.isURL(query)) {
+    return _resolveURL(query)
+      .then((response) => {
+        if (!response) {
+          return [];
+        } else if (_isTrackURL(response)) {
+          return [_mapTrackToTrack(response, message)];
+        } else if (_isPlaylistURL(response)) {
+          return response.tracks.map((track) => _mapTrackToTrack(track, message));
+        }
 
-      return [];
-    });
+        return [];
+      });
+  }
+  /** The query is a search query, execute a search on SoundCloud */
+  else {
+    return _fetchSearchTrack(query)
+      .then((response) => {
+        if (!response || response.length <= 0) {
+          return [];
+        }
+
+        const firstElements = response
+          .filter((el) => el.kind === 'track')
+          .slice(0, 3);
+
+        return (firstElements as models.SoundcloudTrack[])
+          .map((el) => _mapTrackToTrack(el, message));
+      });
+  }
 }
 
 /**
  * Resolve a soundcloud URL, we expect a response which contains the `kind` of
- * the resource fetched. We also expect to fetch nothing/an error.
+ * the resource fetched.
  *
  * @param url a soundcloud url that we need to resolve
  */
-function resolveURL(url: string) {
+function _resolveURL(url: string) {
   return Axios.get<models.SoundcloudResponse>(`http://api.soundcloud.com/resolve.json`, {
     params: {
       url,
       client_id: process.env['SOUNDCLOUD_TOKEN'],
     },
   })
-    .then((response) => {
-      debug('successfully resolved url: %s of kind: %s', url, response.data.kind);
-      return response.data;
-    })
-    .catch((error: AxiosError | string) => {
-      debug('unable to fetch metadata of a url: %s using SOUNDCLOUD_TOKEN %S', (error instanceof Error) ? error.message : error, process.env['SOUNDCLOUD_TOKEN']);
-    });
+    .then((response) => response.data)
+    .catch((error: AxiosError | string) => {});
+}
+
+/**
+ * Execute a search on SoundCloud which returns an array of mixed `kind`.
+ *
+ * @param query the search query
+ */
+function _fetchSearchTrack(query: string) {
+  return Axios.get<models.SoundcloudResponse[]>(`http://api.soundcloud.com/tracks`, {
+    params: {
+      q: query,
+      client_id: process.env['SOUNDCLOUD_TOKEN'],
+    },
+  })
+    .then((response) => response.data)
+    .catch((error: AxiosError | string) => {});
 }
 
 /**
@@ -50,7 +77,7 @@ function resolveURL(url: string) {
  *
  * @param data response to check for a `SoundcloudPlaylist`.
  */
-function isPlaylistURL(data: any): data is models.SoundcloudPlaylist {
+function _isPlaylistURL(data: any): data is models.SoundcloudPlaylist {
   return data.kind === 'playlist';
 }
 
@@ -60,7 +87,7 @@ function isPlaylistURL(data: any): data is models.SoundcloudPlaylist {
  *
  * @param data response to check for a `SoundcloudTrack`.
  */
-function isTrackURL(data: models.SoundcloudResponse): data is models.SoundcloudTrack {
+function _isTrackURL(data: models.SoundcloudResponse): data is models.SoundcloudTrack {
   return data.kind === 'track';
 }
 
@@ -71,7 +98,7 @@ function isTrackURL(data: models.SoundcloudResponse): data is models.SoundcloudT
  * @param track track metadata.
  * @param message the discord message this whole thing.
  */
-function mapTrackToTrack(track: models.SoundcloudTrack, message: Discord.Message): models.Track {
+function _mapTrackToTrack(track: models.SoundcloudTrack, message: Discord.Message): models.Track {
   return {
     provider: 'soundcloud',
     url: track.permalink_url,
