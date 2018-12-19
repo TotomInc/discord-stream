@@ -10,21 +10,24 @@ const providersList = utils.providersList();
 
 module.exports = {
   name: 'play',
-  description: 'play a track based on a URL (YouTube, SoundCloud, radio-stream, ...) or search query (will search on YouTube)',
+  description: 'play a track based on a URL (YouTube, SoundCloud) or on a search query (will search on YouTube)',
   execute: (message, args) => {
     const client = message.client;
     const member = message.member;
-    const query = args.join(' ');
 
+    const query = args.join(' ');
     const provider = (!utils.isURL(query))
       ? 'youtube'
       : utils.detectURLProvider(query);
 
-    /**
-     * If provider unefined, it means the provider is not supported
-     */
+    /** If provider unefined, it means the provider is not supported */
     if (!provider) {
       return message.channel.send(`Sorry I don\'t support this provider. Here is a list of the supported providers: ${providersList.join(', ')}`);
+    }
+
+    /** If we try to make a youtube search with a query too short */
+    if (provider === 'youtube' && query.length < 3) {
+      return message.channel.send(`The search query is too short.`);
     }
 
     message.channel.send(`:mag_right: Searching on **${provider}**: \`${query}\``);
