@@ -4,37 +4,50 @@ import Discord from 'discord.js';
 import * as models from '../models';
 import * as utils from '../utils';
 
-export function fetchHandler(query: string, message: Discord.Message): Promise<models.Track[]> {
-  /** If query is an URL, try to determine what type of SoundCloud URL */
+/**
+ * Automatically determine how to fetch the metadata of the query depending on
+ * its kind:
+ *  - a search-query: automatically trigger a search an returns the first 3
+ *  results.
+ *  - a soundcloud URL: resolve the soundcloud URL to determine the kind of the
+ *  resource (handle tracks and playlists).
+ *
+ * @param query a query can be an URL to resolve or a search-query
+ * @param message the discord message that initiated this
+ */
+export async function fetchHandler(query: string, message: Discord.Message): Promise<models.Track[]> {
   if (utils.isURL(query)) {
-    return _resolveURL(query)
-      .then((response) => {
-        if (!response) {
-          return [];
-        } else if (_isTrackURL(response)) {
-          return [_mapTrackToTrack(response, message)];
-        } else if (_isPlaylistURL(response)) {
-          return response.tracks.map((track) => _mapTrackToTrack(track, message));
-        }
+    const resolvedURL = await _resolveURL(query);
 
+    if (!resolvedURL) {
+      return [];
+    } else if (_isUserKind(resolvedURL)) {
+      const userTracks = await _resolveURL(`${resolvedURL.permalink_url}/tracks`) as models.SoundcloudTrack[] | void;
+
+      if (userTracks && Array.isArray(userTracks)) {
+        return userTracks.map((track) => _mapTrackToTrack(track, message));
+      } else {
         return [];
-      });
-  }
-  /** The query is a search query, execute a search on SoundCloud */
-  else {
-    return _fetchSearchTrack(query)
-      .then((response) => {
-        if (!response || response.length <= 0) {
-          return [];
-        }
+      }
+    } else if (_isTrackKind(resolvedURL)) {
+      return [_mapTrackToTrack(resolvedURL, message)];
+    } else if (_isPlaylistKind(resolvedURL)) {
+      return resolvedURL.tracks.map((track) => _mapTrackToTrack(track, message));
+    }
 
-        const firstElements = response
-          .filter((el) => el.kind === 'track')
-          .slice(0, 3);
+    return [];
+  } else {
+    const searchResults = await _fetchSearchTrack(query);
 
-        return (firstElements as models.SoundcloudTrack[])
-          .map((el) => _mapTrackToTrack(el, message));
-      });
+    if (!searchResults ||searchResults.length <= 0) {
+      return [];
+    }
+
+    const firstSearchResults = searchResults
+      .filter((el) => el.kind === 'track')
+      .slice(0, 3) as models.SoundcloudTrack[];
+
+    return firstSearchResults.map((track) => _mapTrackToTrack(track, message));
   }
 }
 
@@ -77,7 +90,7 @@ function _fetchSearchTrack(query: string) {
  *
  * @param data response to check for a `SoundcloudPlaylist`.
  */
-function _isPlaylistURL(data: any): data is models.SoundcloudPlaylist {
+function _isPlaylistKind(data: any): data is models.SoundcloudPlaylist {
   return data.kind === 'playlist';
 }
 
@@ -87,8 +100,18 @@ function _isPlaylistURL(data: any): data is models.SoundcloudPlaylist {
  *
  * @param data response to check for a `SoundcloudTrack`.
  */
-function _isTrackURL(data: models.SoundcloudResponse): data is models.SoundcloudTrack {
+function _isTrackKind(data: models.SoundcloudResponse): data is models.SoundcloudTrack {
   return data.kind === 'track';
+}
+
+/**
+ * Type-guard for checking a `SoundcloudUser`. We can check it by verifying
+ * the kind of the resource which should be `user`.
+ *
+ * @param data response to check for a `SoundcloudUser`.
+ */
+function _isUserKind(data: models.SoundcloudResponse): data is models.SoundcloudUser {
+  return data.kind === 'user';
 }
 
 /**
