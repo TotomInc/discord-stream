@@ -1,6 +1,5 @@
 import Discord from 'discord.js';
 import Debug from 'debug';
-import { Readable } from 'stream';
 
 import * as models from '../models';
 import * as utils from '../utils';
