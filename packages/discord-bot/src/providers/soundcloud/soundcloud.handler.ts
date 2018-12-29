@@ -1,4 +1,5 @@
 import Discord from 'discord.js';
+import to from 'await-to-js';
 
 import * as utils from '../../utils';
 import * as models from '../../models';
@@ -19,9 +20,12 @@ export async function fetchHandler(query: string, message: Discord.Message): Pro
   const isURL = utils.isURL(query);
 
   if (isURL) {
-    const resource = await api.resolveURL(query);
+    const [err, resource] = await to(api.resolveURL(query));
 
-    if (resource && SoundcloudGuard.isTrack(resource)) {
+    if (err || !resource) {
+      // TODO: something went wrong while trying to resolve the URL
+    }
+    else if (resource && SoundcloudGuard.isTrack(resource)) {
       tracks.push(_mapSoundcloudTrack(resource, message));
     } else if (resource && SoundcloudGuard.isPlaylist(resource)) {
       resource.tracks
@@ -29,9 +33,11 @@ export async function fetchHandler(query: string, message: Discord.Message): Pro
         .forEach((track) => tracks.push(track));
     }
   } else {
-    const trackSearchResults = await api.searchTrack(query);
+    const [err, trackSearchResults] = await to(api.searchTrack(query));
 
-    if (trackSearchResults) {
+    if (err || !trackSearchResults) {
+      // TODO: something went wrong while trying to search a track
+    } else if (trackSearchResults) {
       trackSearchResults
         .slice(0, 3)
         .map((track) => _mapSoundcloudTrack(track, message))
