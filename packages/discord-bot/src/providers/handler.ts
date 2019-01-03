@@ -9,8 +9,8 @@ import * as soundcloud from './soundcloud';
  * Fetch metadata from the user input. Returns a promise with an array of
  * `Track`.
  *
- * @param provider provider of the url
- * @param query the query could be an url or a search query
+ * @param provider the service-provider of the resource
+ * @param query the url or search query
  * @param message the discord message that initiated this
  */
 export async function handleProvider(
@@ -18,10 +18,10 @@ export async function handleProvider(
   query: string,
   message: Discord.Message,
 ): Promise<models.Track[]> {
-  const [err, tracks] = await to<models.Track[]>(_fetchMetadata(provider, query, message));
+  const [err, tracks] = await to(_fetchMetadata(provider, query, message));
 
   if (err || !tracks || tracks.length <= 0) {
-    message.channel.send(`Your track haven't been queued, there was an unexpected error. Please try again or something else.`);
+    message.channel.send(`Your track haven't been queued because the metadata could not be fetched (blocked by a provider).`);
   }
 
   return tracks || [];
@@ -43,7 +43,7 @@ export function handleStreamProvider(provider: models.providers, track: models.T
 
     case 'soundcloud':
       return {
-        arbitraryURL: `${track.streamURL}?client_id=${process.env['SOUNDCLOUD_TOKEN']}`,
+        arbitraryURL: soundcloud.getReadableStreamURL(track),
       };
       break;
   }
