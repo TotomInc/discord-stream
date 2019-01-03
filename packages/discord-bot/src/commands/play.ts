@@ -1,4 +1,5 @@
 import Debug from 'debug';
+import to from 'await-to-js';
 
 import { Command } from '../models';
 import * as providers from '../providers';
@@ -11,7 +12,7 @@ const providersList = utils.providersList();
 module.exports = {
   name: 'play',
   description: 'play a track based on a URL (YouTube, SoundCloud) or on a search query (will search on YouTube)',
-  execute: (message, args) => {
+  execute: async (message, args) => {
     const client = message.client;
     const member = message.member;
 
@@ -27,29 +28,28 @@ module.exports = {
 
     /** If we try to make a youtube search with a query too short */
     if (provider === 'youtube' && query.length < 3) {
-      return message.channel.send(`The search query is too short.`);
+      return message.channel.send('The search query is too short.');
     }
 
     message.channel.send(`:mag_right: Searching on **${provider}**: \`${query}\``);
 
-    /** If author is in a voice-channel and the bot is not */
     if (member.voiceChannelID && !client.voiceConnections.has(message.guild.id)) {
-      member.voiceChannel.join()
-        .catch((err: Error) => {
-          debug('unable to join voice-channel %s on guild %s', message.member.voiceChannelID, message.guild.id);
-          message.reply('looks like there is an unexpected error, I can\'t join your voice-channel, please try again');
-        })
-        .then(() => providers.handleProvider(provider, query, message))
-        .then((tracks) => player.addTracks(message, tracks || []))
-        .then((queue) => player.playTrack(message, queue));
+      const [joinErr, voiceConnection] = await to(member.voiceChannel.join());
+
+      if (joinErr || !voiceConnection) {
+        return message.reply('I am unable to join your voice-channel. Make sure I have enough permissions.');
+      }
     }
-    /** If author is in the same voice-channel of the bot */
-    else if (message.member.voiceChannelID && client.voiceConnections.has(message.guild.id)) {
-      providers.handleProvider(provider, query, message)
-        .then((tracks) => player.addTracks(message, tracks || []))
-        .then((queue) => player.playTrack(message, queue));
-    } else {
-      message.reply('make sure you join a voice-channel or the same voice-channel of the bot if he is connected');
+
+    if (message.member.voiceChannelID && client.voiceConnections.has(message.guild.id)) {
+      const [fetchTracksErr, tracks] = await to(providers.handleProvider(provider, query, message));
+
+      if (fetchTracksErr || !tracks || tracks.length <= 0) {
+        return client.voiceConnections.get(message.guild.id)!.disconnect();
+      }
+
+      const guildQueue = player.addTracks(message, tracks);
+      player.playTrack(message, guildQueue);
     }
   },
 } as Command;
