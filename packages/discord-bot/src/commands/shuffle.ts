@@ -28,7 +28,7 @@ module.exports = {
     const shuffledQueue = shuffle(queue.slice(1, queue.length));
 
     shuffledQueue.unshift(currentTrack);
-    player.replaceQueue(message, shuffledQueue);
+    player.replaceQueue(shuffledQueue, message);
 
     return message.channel.send(richEmbed);
   },

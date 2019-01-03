@@ -17,9 +17,8 @@ module.exports = {
     const member = message.member;
 
     const query = args.join(' ');
-    const provider = (!utils.isURL(query))
-      ? 'youtube'
-      : utils.detectURLProvider(query);
+    const isURL = utils.isURL(query);
+    const provider = (!isURL) ? 'youtube' : utils.detectURLProvider(query);
 
     /** If provider unefined, it means the provider is not supported */
     if (!provider) {
@@ -37,7 +36,7 @@ module.exports = {
       const [joinErr, voiceConnection] = await to(member.voiceChannel.join());
 
       if (joinErr || !voiceConnection) {
-        return message.reply('I am unable to join your voice-channel. Make sure I have enough permissions.');
+        return message.reply('I am unable to join your voice-channel. Make sure I have enough permissions (connect and speak).');
       }
     }
 
@@ -48,7 +47,7 @@ module.exports = {
         return client.voiceConnections.get(message.guild.id)!.disconnect();
       }
 
-      const guildQueue = player.addTracks(message, tracks);
+      const guildQueue = player.addTracks(tracks, message);
       player.playTrack(message, guildQueue);
     }
   },
