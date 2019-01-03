@@ -50,11 +50,12 @@ export function handleStreamProvider(provider: models.providers, track: models.T
 }
 
 /**
- * Call the right method to fetch track/playlist metadata depending of the
- * provider. This allow us to use the right API for each provider.
+ * Call the right method to fetch track/playlist/search metadata depending of
+ * the provider. This allow us to use the right API calls for a specific
+ * provider.
  *
- * @param provider provider of the url
- * @param query the query could be an url or a search query
+ * @param provider the service-provider of the url
+ * @param query the search query or an url
  * @param message the discord message that initiated this
  */
 async function _fetchMetadata(
