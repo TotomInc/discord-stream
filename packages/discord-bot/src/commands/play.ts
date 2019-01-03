@@ -57,6 +57,7 @@ module.exports = {
       }
     }
 
+    /** If the sender and the bot are already in a voice-channel */
     if (message.member.voiceChannelID && client.voiceConnections.has(message.guild.id)) {
       const [fetchTracksErr, tracks] = await to(providers.handleProvider(provider, query, message));
 
