@@ -21,8 +21,8 @@ const api = new YoutubeAPI();
 export async function fetchHandler(query: string, message: Discord.Message): Promise<models.Track[]> {
   const tracks: models.Track[] = [];
   const isURL = utils.isURL(query);
-  const isVideo = YoutubeGuard.isVideo(query);
-  const isPlaylist = YoutubeGuard.isPlaylist(query);
+  const isVideo = (isURL) ? YoutubeGuard.isVideo(query) : false;
+  const isPlaylist = (isURL) ? YoutubeGuard.isPlaylist(query) : false;
 
   if (isURL) {
     if (isVideo && !isPlaylist) {
@@ -42,7 +42,7 @@ export async function fetchHandler(query: string, message: Discord.Message): Pro
       } else {
         const playlistVideoIDs = playlistMetadata.items.map((item) => item.snippet.resourceId.videoId);
 
-        await playlistVideoIDs.forEach(async (videoID) => {
+        for (const videoID of playlistVideoIDs) {
           const [videoErr, videoMetadata] = await to(api.getVideo(_buildURLFromID(videoID)));
 
           if (videoErr || !videoMetadata) {
@@ -50,7 +50,7 @@ export async function fetchHandler(query: string, message: Discord.Message): Pro
           } else {
             tracks.push(_mapVideoTrack(videoMetadata, message));
           }
-        });
+        }
       }
     }
   } else {
@@ -61,15 +61,15 @@ export async function fetchHandler(query: string, message: Discord.Message): Pro
     } else if (videoSearchResults) {
       const firstVideosResults = videoSearchResults.items.slice(0, 3);
 
-      await firstVideosResults.forEach(async (video) => {
-          const [videoErr, videoMetadata] = await to(YTDL.getBasicInfo(video.id.videoId));
+      for (const video of firstVideosResults) {
+        const [videoErr, videoMetadata] = await to(YTDL.getBasicInfo(video.id.videoId));
 
-          if (videoErr || !videoMetadata) {
-            // TODO: something went wrong while trying to fetch metadata from the first videos results
-          } else {
-            tracks.push(_mapVideoTrack(videoMetadata, message));
-          }
-        });
+        if (videoErr || !videoMetadata) {
+          // TODO: something went wrong while trying to fetch metadata from the first videos results
+        } else {
+          tracks.push(_mapVideoTrack(videoMetadata, message));
+        }
+      }
     }
   }
 
