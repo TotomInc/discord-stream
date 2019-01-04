@@ -14,7 +14,10 @@ module.exports = {
       embed.addField('I have a custom prefix on this server', `You can also call me by using the **${customPrefix}** prefix.`);
     }
 
-    commands.forEach((command) => embed.addField(command.name, command.description));
+    commands
+      .filter((command) => !command.invisible)
+      .forEach((command) => embed.addField(command.name, command.description));
+
     message.channel.send(embed);
   },
 } as Command;
