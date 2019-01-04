@@ -1,6 +1,6 @@
 import dotenv from 'dotenv';
 import Discord from 'discord.js';
-import Debug from 'debug';
+import _ from 'lodash';
 
 import * as utils from './utils';
 import { prefixes } from './prefixes';
@@ -9,29 +9,12 @@ dotenv.config({
   path: require('find-config')('.env'),
 });
 
-const debug = Debug('streamer:server');
-
 export const client = new Discord.Client();
 export const commands = utils.loadCommands();
 export const prefix = process.env['PREFIX'] as string;
 
-/** Interval duration set to 30 minutes */
-const statusIntervalDuration = 1.8e+6;
-let statusInterval: NodeJS.Timer | undefined;
+let activityInterval: NodeJS.Timeout;
 
-/**
- * Listen for a new message sent, make sure it starts with the prefix and is
- * not from a bot.
- *
- * We can now process the message:
- *  - remove extra whitespaces, trim
- *  - slice for each whitespace and retrieve arguments
- *  - shift the arguments to retrieve the command name
- *
- * If the command name exists in our `commands` collection, we can get it and
- * execute this command. We always pass in a `command.execute` the message with
- * arguments.
- */
 client.on('message', async (message) => {
   const text = message.content;
   const hasCustomPrefix = prefixes.has(message.guild.id);
@@ -60,13 +43,39 @@ client.on('message', async (message) => {
   try {
     commands.get(command)!.execute(message, args);
   } catch (error) {
-    debug('could not execute command: %s', text);
+    // TODO: log command execution failure
     message.reply('There was an error while trying to execute this command, please try again later.');
   }
 });
 
 client.on('ready', () => {
-  statusInterval = setInterval(() => {
-    client.user.setActivity(`for ${client.guilds.array().length} guilds | ${prefix} help`);
-  }, statusIntervalDuration);
+  activityInterval = setInterval(() => _setActivity(), 300000);
 });
+
+/**
+ * Update the bot status message by picking a random message from the list.
+ */
+function _setActivity() {
+  const messages = [
+    `for ${client.guilds.array().length} guilds | ${prefix} help`,
+    `for ${_getAmountUsers()} users | ${prefix} help`,
+  ];
+  const message = _.sample(messages);
+
+  if (message) {
+    client.user.setActivity(message);
+  }
+}
+
+/**
+ * Get the total amount of users by looping on each guild that uses the bot.
+ */
+function _getAmountUsers(): number {
+  let users = 0;
+
+  client.guilds.forEach((guild) => {
+    users += guild.memberCount;
+  });
+
+  return users;
+}
