@@ -31,7 +31,7 @@ module.exports = {
 
     /** If the sender is not in a voice-channel */
     if (!member.voiceChannel || !member.voiceChannelID) {
-      return message.reply(`You are not connected to a voice-channel. You need to join a voice-channel first, then send a command to call me.`);
+      return message.reply(`you are not connected to a voice-channel. You need to join a voice-channel first, then send a command to call me.`);
     }
 
     /** If provider unefined, it means the provider is not supported */
