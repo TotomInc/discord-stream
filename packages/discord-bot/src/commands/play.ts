@@ -1,4 +1,3 @@
-import Debug from 'debug';
 import to from 'await-to-js';
 
 import { Command } from '../models';
@@ -6,7 +5,6 @@ import * as providers from '../providers';
 import * as player from '../player';
 import * as utils from '../utils';
 
-const debug = Debug('streamer:play');
 const providersList = utils.providersList();
 
 module.exports = {
