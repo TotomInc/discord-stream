@@ -1,11 +1,8 @@
 import * as Discord from 'discord.js';
-import Debug from 'debug';
 
 import * as models from '../models';
 import * as providers from '../providers';
 import * as queue from './queue';
-
-const debug = Debug('streamer:player');
 
 const streamOptions: Discord.StreamOptions = {
   passes: 3,
@@ -27,23 +24,23 @@ export function playTrack(message: Discord.Message, tracks: models.Track[]) {
   const client = message.client;
   const guildID = message.guild.id;
   const guildVoiceConnection = client.voiceConnections.get(guildID);
-  const track: models.Track | undefined = tracks[0];
 
   if (!guildVoiceConnection) {
-    debug('unexpected error, there is no voice-connection for the guildID: %s but it was supposed to have one', guildID);
+    // TODO: unexpected error: the bot is not in a voice-channel
     return;
   }
 
   if (guildVoiceConnection.speaking) {
-    debug('cannot play a track because the bot is actually speaking for guildID: %s', guildID);
+    // TODO: don't play a track because the bot is already playing something
     return;
   }
 
-  if (!track) {
-    debug('unexpected error, there is no track to stream for the guildID: %s with a queue: %O', guildID, tracks);
+  if (!tracks || tracks.length <= 0) {
+    // TODO: there is nothing to play
     return;
   }
 
+  const track = tracks[0];
   const stream = providers.handleStreamProvider(track.provider, track);
 
   if (stream.stream) {
@@ -55,7 +52,7 @@ export function playTrack(message: Discord.Message, tracks: models.Track[]) {
 
 /**
  * Find the current voice-connection for the guild where the message have been
- * sent then we can end the dispatcher prematurely by sending a `end` event.
+ * sent then we can end the dispatcher prematurely by sending an `end` event.
  *
  * @param message the discord message that initiated the `stopTrack`
  */
@@ -67,7 +64,7 @@ export function stopTrack(message: Discord.Message) {
   if (guildVoiceConnection && guildVoiceConnection.speaking) {
     guildVoiceConnection.dispatcher.end('skip');
   } else {
-    message.channel.send('Unable to skip the track, make sure the bot is playing');
+    message.channel.send('Unable to skip the track, make sure the bot is playing something.');
   }
 }
 
@@ -85,7 +82,7 @@ export function cleanPlayer(message: Discord.Message) {
 
   queue.removeQueue(message);
 
-  if (guildVoiceConnection && guildVoiceConnection.speaking) {
+  if (guildVoiceConnection) {
     guildVoiceConnection.disconnect();
   }
 }
@@ -126,11 +123,7 @@ function _playReadableStream(
   message: Discord.Message,
   stream: models.StreamProvider,
 ): Discord.StreamDispatcher {
-  const guildID = message.guild.id;
-
   return guildVoiceConnection.playStream(stream.stream!, streamOptions)
-    .on('error', (error) => debug('error while trying to play a track: %s', error.message))
-    .on('start', () => debug('started audio stream for guildID: %s', guildID))
     .on('end', (reason) => _onTrackEnd(reason, message));
 }
 
@@ -146,11 +139,7 @@ function _playArbitraryInput(
   message: Discord.Message,
   stream: models.StreamProvider,
 ): Discord.StreamDispatcher {
-  const guildID = message.guild.id;
-
   return guildVoiceConnection.playArbitraryInput(stream.arbitraryURL!, streamOptions)
-    .on('error', (error) => debug('error while trying to play a track: %s', error.message))
-    .on('start', () => debug('started audio stream for guildID: %s', guildID))
     .on('end', (reason) => _onTrackEnd(reason, message));
 }
 
@@ -158,7 +147,7 @@ function _playArbitraryInput(
  * Function executed when the `on#end` event have been called from a
  * `Discord#StreamDispatched`.
  *
- * @param reason reason of the `on#end` event that triggered this function
+ * @param reason the reason of the `on#end` event that triggered this function
  * @param message the discord message that iniated the track
  */
 function _onTrackEnd(reason: string, message: Discord.Message): void {
