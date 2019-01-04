@@ -58,9 +58,19 @@ module.exports = {
     /** If the sender and the bot are already in a voice-channel */
     if (message.member.voiceChannelID && client.voiceConnections.has(message.guild.id)) {
       const [fetchTracksErr, tracks] = await to(providers.handleProvider(provider, query, message));
+      const isURL = utils.isURL(query);
 
       if (fetchTracksErr || !tracks || tracks.length <= 0) {
         return client.voiceConnections.get(message.guild.id)!.disconnect();
+      }
+
+      /**
+       * If it's not an URL we suppose it's a search query, so we need to
+       * remove the extra tracks (search up to 3 tracks) before adding them
+       * to the queue.
+       */
+      if (!isURL) {
+        tracks.splice(1, tracks.length);
       }
 
       const guildQueue = player.addTracks(tracks, message);
