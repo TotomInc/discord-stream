@@ -27,15 +27,20 @@ export function addTracks(tracks: models.Track[], message: Discord.Message): mod
   }
 
   if (tracks.length > 0) {
-    const richEmbedTitle = (tracks.length > 1) ? 'Queued some tracks' : 'Queued a track';
+    const richEmbedTitle = (tracks.length > 1) ? `Queued ${tracks.length} tracks` : 'Queued a track';
     const richEmbed = utils.generateRichEmbed(richEmbedTitle, message.client);
+    const firstTracks = (tracks.length > 10) ? tracks.slice(0, 10) : [...tracks];
 
-    tracks.forEach((track) => {
+    firstTracks.forEach((track) => {
       const fieldName = `${track.title}`;
       const fieldValue = `${utils.secondsToHHMMSS(track.duration)} - queued by ${message.author.username}`;
 
       richEmbed.addField(fieldName, fieldValue, true);
     });
+
+    if (tracks.length > 10) {
+      richEmbed.addField('And many more...', 'More tracks have been added and not displayed, use the \`queue\` command to see them.');
+    }
 
     message.channel.send(richEmbed);
   }
