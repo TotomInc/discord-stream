@@ -2,36 +2,43 @@ import { Command } from '../models';
 
 import * as prefixes from '../prefixes';
 
+const prefix = process.env['PREFIX'];
+
 module.exports = {
   name: 'prefix',
   description: 'set or change a custom prefix for this guild',
   execute: (message, args) => {
-    const hasPrefix = prefixes.hasPrefix(message);
+    const customPrefix = prefixes.getPrefix(message);
 
-    if (message.guild.ownerID !== message.member.id) {
+    /**
+     * If a custom prefix have already been setup and someone else than the
+     * guild owner tries to change it
+     */
+    if (customPrefix && message.member.id !== message.guild.ownerID) {
+      return message.reply(`the guild owner have already setup a custom prefix for your guild which is \`${customPrefix}\``);
+    }
+
+    /** If someone else than the guild owner tries to change the prefix */
+    if (message.member.id !== message.guild.ownerID) {
       return message.reply('only the guild owner can change the custom prefix.');
     }
 
+    /**
+     * If the guild owner try to change the custom prefix but doesn't pass a
+     * prefix
+     */
     if (!args[0]) {
-      let str = 'you haven\'t put a custom prefix in the command. ';
-
-      if (hasPrefix) {
-        const customPrefix = prefixes.getPrefix(message);
-
-        str += 'The guild owner have already setup a custom prefix which is **' + customPrefix + '**.';
-      }
-
-      return message.reply(str);
+      return message.reply(`you haven\'t put a custom prefix in the command, example: \`${prefix} prefix <your-prefix>\``);
     }
 
-    const prefix = args[0];
+    const newPrefix = args[0];
 
-    if (prefixes.unauthorizedPrefixes.indexOf(prefix) > -1) {
-      return message.reply(`**${prefix}** is an unauthorized prefix, please choose another one.`);
+    /** If the guild owner tries to put an unauthorized custom prefix */
+    if (prefixes.unauthorizedPrefixes.indexOf(newPrefix) > -1) {
+      return message.reply(`\`${prefix}\` is an unauthorized prefix, please choose another one.`);
     }
 
-    prefixes.setPrefix(message, prefix);
-    prefixes.savePrefixes()
-      .then(() => message.reply(`the custom prefix have been successfully changed to **${prefix}**, be sure to notify your guild members of this change!`));
+    prefixes.setPrefix(message, newPrefix);
+    message.reply(`the custom prefix have been successfully changed to \`${newPrefix}\`, be sure to notify your guild members of this change!`);
   },
 } as Command;

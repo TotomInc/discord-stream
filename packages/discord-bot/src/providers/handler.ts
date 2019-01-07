@@ -1,14 +1,31 @@
 import Discord from 'discord.js';
-import Debug from 'debug';
-import { Readable } from 'stream';
+import to from 'await-to-js';
 
 import * as models from '../models';
-import * as utils from '../utils';
-
 import * as youtube from './youtube';
 import * as soundcloud from './soundcloud';
 
-const debug = Debug('streamer:handler');
+/**
+ * Fetch metadata from the user input. Returns a promise with an array of
+ * `Track`.
+ *
+ * @param provider the service-provider of the resource
+ * @param query the url or search query
+ * @param message the discord message that initiated this
+ */
+export async function handleProvider(
+  provider: models.providers,
+  query: string,
+  message: Discord.Message,
+): Promise<models.Track[]> {
+  const [err, tracks] = await to(_fetchMetadata(provider, query, message));
+
+  if (err || !tracks || tracks.length <= 0) {
+    message.channel.send(`Your track haven't been queued because the metadata could not be fetched (blocked by a provider).`);
+  }
+
+  return tracks || [];
+}
 
 /**
  * Call the right method to get the readable stream from the track URL.
@@ -26,69 +43,26 @@ export function handleStreamProvider(provider: models.providers, track: models.T
 
     case 'soundcloud':
       return {
-        arbitraryURL: `${track.streamURL}?client_id=${process.env['SOUNDCLOUD_TOKEN']}`,
+        arbitraryURL: soundcloud.getReadableStreamURL(track),
       };
       break;
   }
 }
 
 /**
- * Fetch metadata from a track/playlist and send a rich-embed message.
- * Returns a promise with an array of `Track`.
+ * Call the right method to fetch track/playlist/search metadata depending of
+ * the provider. This allow us to use the right API calls for a specific
+ * provider.
  *
- * @param provider provider of the url
- * @param query the query could be an url or a search query
+ * @param provider the service-provider of the url
+ * @param query the search query or an url
  * @param message the discord message that initiated this
  */
-export function handleProvider(provider: models.providers, query: string, message: Discord.Message): Promise<void | models.Track[]> {
-  return _switchFetchMetadataProvider(provider, query, message)
-    .then((response) => {
-      // This means we haven't found any track
-      if (response.length <= 0) {
-        message.channel.send('Your track haven\'t been queued, there was an unexpected error, try again or something else');
-        debug('promise resolved but no track added with query: %s with provider %s', query, provider);
-      }
-
-      // This means we have a single-track
-      if (response.length === 1) {
-        const track = response[0];
-
-        // For some weird reasons, discord.js add a strange symbol with interpolated strings
-        const richEmbed = utils.generateRichEmbed('Queued a new track', message.client)
-          .addField(track.title, _formatTrackAddedMessage(track.duration, track.initiator))
-          .setThumbnail(track.thumbnailURL)
-          .setURL(track.url);
-
-        debug('handled a single track from provider: %s with query/url: %s', provider, track.url);
-        message.channel.send(richEmbed);
-      }
-
-      // This means we are trying to import a playlist
-      if (response.length > 1) {
-        const richEmbed = utils.generateRichEmbed('Queued a new playlist', message.client)
-          .setDescription(`Added ${response.length} tracks into the queue`);
-
-        debug('handled an array of tracks from a playlist form provider: %s', provider);
-        message.channel.send(richEmbed);
-      }
-
-      return response;
-    })
-    .catch((err: Error) => {
-      debug('unable to fetch metadata for query: %s, error: %O', query, err);
-      message.channel.send('Something went wrong while trying to fetch metadata');
-    });
-}
-
-/**
- * Call the right method to fetch track/playlist metadata depending of the
- * provider. This allow us to use the right API for each provider.
- *
- * @param provider provider of the url
- * @param query the query could be an url or a search query
- * @param message the discord message that initiated this
- */
-function _switchFetchMetadataProvider(provider: models.providers, query: string, message: Discord.Message): Promise<models.Track[]> {
+async function _fetchMetadata(
+  provider: models.providers,
+  query: string,
+  message: Discord.Message,
+): Promise<models.Track[]> {
   switch (provider) {
     case 'youtube':
       return youtube.fetchHandler(query, message);
@@ -98,18 +72,4 @@ function _switchFetchMetadataProvider(provider: models.providers, query: string,
       return soundcloud.fetchHandler(query, message);
       break;
   }
-}
-
-/**
- * Returns the track-added message to be used in a rich-embed. This function
- * doesn't use ES6 template strings because of an incompatibility with
- * `discord.js` where it adds a strange symbol on the string.
- *
- * @param duration duration of the track in ms
- * @param message the discord message that initiated this
- */
-function _formatTrackAddedMessage(duration: string, message: Discord.Message): string {
-  const formattedTime = utils.secondsToHHMMSS(duration);
-
-  return formattedTime + ' - Added by ' + message.author.username;
 }

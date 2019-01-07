@@ -73,6 +73,39 @@ export interface SoundcloudUser {
   reposts_count: number;
 }
 
+export interface SoundcloudPlaylist {
+  duration: number;
+  release_day: number;
+  permalink_url: string;
+  reposts_count: number;
+  genre: string;
+  permalink: string;
+  purchase_url: string;
+  release_month: number;
+  description: string;
+  uri: string;
+  label_name: string;
+  tag_list: string;
+  release_year: number;
+  track_count: number;
+  user_id: number;
+  last_modified: string;
+  license: string;
+  tracks: SoundcloudTrack[];
+  id: number;
+  downloadable: boolean;
+  sharing: string;
+  created_at: string;
+  likes_count: number;
+  kind: 'playlist';
+  title: string;
+  purchase_title: string;
+  artwork_url: string;
+  streamable: boolean;
+  user: SoundcloudUserPeek;
+  embeddable_by: string;
+}
+
 export interface SoundcloudError {
   errors: [{
     error_message: string;
