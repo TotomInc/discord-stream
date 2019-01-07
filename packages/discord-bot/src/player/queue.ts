@@ -38,7 +38,9 @@ export function addTracks(tracks: models.Track[], message: Discord.Message): mod
       richEmbed.addField(fieldName, fieldValue, true);
     });
 
-    if (tracks.length > 10) {
+    if (tracks.length === 1) {
+      richEmbed.setThumbnail(tracks[0].thumbnailURL);
+    } else if (tracks.length > 10) {
       richEmbed.addField('And many more...', 'More tracks have been added and not displayed, use the \`queue\` command to see them.');
     }
 
