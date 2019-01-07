@@ -1,13 +1,15 @@
 import Discord from 'discord.js';
 
 import * as models from '../models';
+import * as utils from '../utils';
 
 /** Guild queues are stored and can be retrieved with a `guildID` */
 const queues: Discord.Collection<string, models.Track[]> = new Discord.Collection();
 
 /**
  * Add the content of the `tracks` into the `guildQueue`. If the queue doesn't
- * exists for this guild, we create it. Returns the queue.
+ * exists for this guild, we create it. Automatically send a rich-embed message
+ * notification, then returns the queue.
  *
  * @param tracks an array of `Track`
  * @param message the discord message that initiated this
@@ -23,6 +25,21 @@ export function addTracks(tracks: models.Track[], message: Discord.Message): mod
 
     queues.set(guildID, newQueue);
   }
+
+  if (tracks.length > 0) {
+    const richEmbedTitle = (tracks.length > 1) ? 'Queued some tracks' : 'Queued a track';
+    const richEmbed = utils.generateRichEmbed(richEmbedTitle, message.client);
+
+    tracks.forEach((track) => {
+      const fieldName = `${track.title}`;
+      const fieldValue = `${utils.secondsToHHMMSS(track.duration)} - queued by ${message.author.username}`;
+
+      richEmbed.addField(fieldName, fieldValue, true);
+    });
+
+    message.channel.send(richEmbed);
+  }
+
 
   return queues.get(guildID) || [];
 }
