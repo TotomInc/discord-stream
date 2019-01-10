@@ -1,5 +1,5 @@
 {
-  "name": "discord-stream",
+  "name": "discord-bot",
   "version": "0.0.0",
   "main": "dist/index.js",
   "author": "TotomInc <cazade.thomas@gmail.com>",
