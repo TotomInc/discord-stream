@@ -3,6 +3,7 @@ import * as Discord from 'discord.js';
 import * as models from '../models';
 import * as providers from '../providers';
 import * as queue from './queue';
+import logger, { logError } from '../logger';
 
 const streamOptions: Discord.StreamOptions = {
   passes: 3,
@@ -26,17 +27,17 @@ export function playTrack(message: Discord.Message, tracks: models.Track[]) {
   const guildVoiceConnection = client.voiceConnections.get(guildID);
 
   if (!guildVoiceConnection) {
-    // TODO: unexpected error: the bot is not in a voice-channel
+    logger.log('info', `can't playTrack because the bot is expected to be in a voice-channel, and is not`);
     return;
   }
 
   if (guildVoiceConnection.speaking) {
-    // TODO: don't play a track because the bot is already playing something
+    logger.log('info', `don't playTrack because the bot is actually speaking (and streaming something else)`);
     return;
   }
 
   if (!tracks || tracks.length <= 0) {
-    // TODO: there is nothing to play
+    logger.log('info', `there is nothing to play from playTrack`);
     return;
   }
 
@@ -62,6 +63,7 @@ export function stopTrack(message: Discord.Message) {
   const guildVoiceConnection = client.voiceConnections.get(guildID);
 
   if (guildVoiceConnection && guildVoiceConnection.speaking) {
+    logger.log('info', 'current track have been skipped');
     guildVoiceConnection.dispatcher.end('skip');
   } else {
     message.channel.send('Unable to skip the track, make sure the bot is playing something.');
@@ -80,6 +82,7 @@ export function cleanPlayer(message: Discord.Message) {
   const guildID = message.guild.id;
   const guildVoiceConnection = client.voiceConnections.get(guildID);
 
+  logger.log('info', 'queue have been cleaned');
   queue.removeQueue(message);
 
   if (guildVoiceConnection) {
@@ -106,6 +109,7 @@ export function setVolume(message: Discord.Message, volume: number): boolean {
     message.reply('I am not speaking.');
     return false;
   } else {
+    logger.log('info', `stream dispatcher volume set to ${volume / 100}`);
     guildVoiceConnection.dispatcher.setVolume(volume / 100);
     return true;
   }
@@ -124,7 +128,11 @@ function _playReadableStream(
   stream: models.StreamProvider,
 ): Discord.StreamDispatcher {
   return guildVoiceConnection.playStream(stream.stream!, streamOptions)
-    .on('end', (reason) => _onTrackEnd(reason, message));
+    .on('error', (err) => logError(err))
+    .on('end', (reason) => {
+      logger.log('info', `playStream ended with reason: ${reason}`);
+      _onTrackEnd(reason, message);
+    });
 }
 
 /**
@@ -140,7 +148,11 @@ function _playArbitraryInput(
   stream: models.StreamProvider,
 ): Discord.StreamDispatcher {
   return guildVoiceConnection.playArbitraryInput(stream.arbitraryURL!, streamOptions)
-    .on('end', (reason) => _onTrackEnd(reason, message));
+    .on('error', (err) => logError(err))
+    .on('end', (reason) => {
+      logger.log('info', `playStream ended with reason: ${reason}`);
+      _onTrackEnd(reason, message);
+    });
 }
 
 /**
