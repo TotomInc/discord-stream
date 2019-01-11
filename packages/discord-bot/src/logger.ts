@@ -39,4 +39,17 @@ if (!isProduction) {
   }));
 }
 
+/**
+ * Automatically log an error object with the stack trace if available.
+ *
+ * @param err an error object
+ */
+export function logError(err: Error) {
+  logger.log('error', err.message);
+
+  if (err.stack) {
+    logger.log('error', err.stack);
+  }
+}
+
 export default logger;
