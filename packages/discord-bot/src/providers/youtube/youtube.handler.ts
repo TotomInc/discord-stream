@@ -8,6 +8,7 @@ import * as utils from '../../utils';
 import * as models from '../../models';
 import * as YoutubeGuard from './youtube.guard';
 import YoutubeAPI from './youtube.api';
+import { logError } from '../../logger';
 
 const api = new YoutubeAPI();
 
@@ -82,8 +83,10 @@ export async function fetchHandler(query: string, message: Discord.Message): Pro
  * @param track the track object containing metadata
  */
 export function getReadableStream(track: models.Track): Readable {
-  // TODO: add event listener `on#error` and write it error to logs
-  return YTDL(track.streamURL, { filter: 'audioonly' });
+  return YTDL(track.streamURL, {
+    filter: 'audioonly',
+  })
+    .on('error', (err) => logError(err));
 }
 
 /**
