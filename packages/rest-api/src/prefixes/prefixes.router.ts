@@ -27,4 +27,11 @@ routes.get('/:guildID', async (req, res) => {
   res.status(200).json(prefix);
 });
 
+routes.get('/', async (req, res) => {
+  const prefixes = await MongoPrefixes.getPrefixes();
+  const prefixesArray = await prefixes.toArray();
+
+  res.status(200).json(prefixesArray);
+});
+
 export default routes;
