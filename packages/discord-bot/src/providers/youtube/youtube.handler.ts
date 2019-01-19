@@ -70,7 +70,6 @@ export async function fetchHandler(query: string, message: Discord.Message): Pro
         const [videoErr, videoMetadata] = await to(YTDL.getBasicInfo(video.id.videoId));
 
         if (videoErr || !videoMetadata) {
-          // TODO: something went wrong while trying to fetch metadata from the first videos results
           logger.log('error', `youtube-handler can't fetch a video metadata from a list of search videos response`);
           logError(err);
         } else {
