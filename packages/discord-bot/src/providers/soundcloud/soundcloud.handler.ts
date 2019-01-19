@@ -1,6 +1,7 @@
 import Discord from 'discord.js';
 import to from 'await-to-js';
 
+import logger, { logError } from '../../logger';
 import * as utils from '../../utils';
 import * as models from '../../models';
 import * as SoundcloudGuard from './soundcloud.guard';
@@ -24,7 +25,8 @@ export async function fetchHandler(query: string, message: Discord.Message): Pro
     const [err, resource] = await to(api.resolveURL(query));
 
     if (err || !resource) {
-      // TODO: something went wrong while trying to resolve the URL
+      logger.log('error', 'soundcloud-handler can\'t fetch the resource from the fetchHandler using an URL');
+      logError(err);
     }
     else if (resource && SoundcloudGuard.isTrack(resource)) {
       tracks.push(_mapSoundcloudTrack(resource, message));
@@ -37,7 +39,8 @@ export async function fetchHandler(query: string, message: Discord.Message): Pro
     const [err, trackSearchResults] = await to(api.searchTrack(query));
 
     if (err || !trackSearchResults) {
-      // TODO: something went wrong while trying to search a track
+      logger.log('error', 'soundcloud-handler can\'t fetch search response from the fetchHandler using a search query');
+      logError(err);
     } else if (trackSearchResults) {
       trackSearchResults
         .slice(0, 3)
