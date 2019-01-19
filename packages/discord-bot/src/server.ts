@@ -4,6 +4,7 @@ import _ from 'lodash';
 
 import * as utils from './utils';
 import { prefixes } from './prefixes';
+import logger, { logError } from './logger';
 
 dotenv.config({
   path: require('find-config')('.env'),
@@ -43,7 +44,8 @@ client.on('message', async (message) => {
   try {
     commands.get(command)!.execute(message, args);
   } catch (error) {
-    // TODO: log command execution failure
+    logger.log('error', 'Unable to execute a command');
+    logError(error);
     message.reply('There was an error while trying to execute this command, please try again later.');
   }
 });

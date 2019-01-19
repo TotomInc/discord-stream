@@ -1,23 +1,19 @@
 import dotenv from 'dotenv';
-import Debug from 'debug';
 
 import * as prefixes from './prefixes';
 import { client } from './server';
+import logger from './logger';
 
 dotenv.config({
   path: require('find-config')('.env'),
 });
 
-const debug = Debug('streamer:index');
 const token = process.env['DISCORD_TOKEN'];
 
 prefixes.loadPrefixes()
   .then(() => client.login(token))
-  .then(() => debug('successfully logged in'))
-  .catch((err: Error) => {
-    debug('could not log in: %s', err.message);
-    debug('token used: %s', token);
-  });
+  .then(() => logger.log('info', 'successfully logged in'))
+  .catch((err: Error) => logger.log('error', `${err.message}`));
 
 /**
  * When using nodemon, before restarting the app make sure to disconnect the

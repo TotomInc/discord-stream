@@ -8,6 +8,7 @@ import * as utils from '../../utils';
 import * as models from '../../models';
 import * as YoutubeGuard from './youtube.guard';
 import YoutubeAPI from './youtube.api';
+import logger, { logError } from '../../logger';
 
 const api = new YoutubeAPI();
 
@@ -29,7 +30,8 @@ export async function fetchHandler(query: string, message: Discord.Message): Pro
       const [err, videoMetadata] = await to(api.getVideo(query));
 
       if (err || !videoMetadata) {
-        // TODO: something went wrong while trying to get video metadata
+        logger.log('error', 'youtube-handler can\'t fetch a video metadata from the fetchHandler');
+        logError(err);
       } else {
         tracks.push(_mapVideoTrack(videoMetadata, message));
       }
@@ -38,7 +40,8 @@ export async function fetchHandler(query: string, message: Discord.Message): Pro
       const [err, playlistMetadata] = await to(api.getPlaylist(playlistID));
 
       if (err || !playlistMetadata) {
-        // TODO: something went wrong while trying to fetch playlist metadata
+        logger.log('error', 'youtube-handler can\'t fetch playlist metadata from the fetchHandler');
+        logError(err);
       } else {
         const playlistVideoIDs = playlistMetadata.items.map((item) => item.snippet.resourceId.videoId);
 
@@ -46,7 +49,8 @@ export async function fetchHandler(query: string, message: Discord.Message): Pro
           const [videoErr, videoMetadata] = await to(api.getVideo(_buildURLFromID(videoID)));
 
           if (videoErr || !videoMetadata) {
-            // TODO: something went wrong while trying to fetch metadata from a video in a playlist
+            logger.log('err', 'youtube-handler can\'t fetch a video metadata from a playlist in the fetchHandler');
+            logError(err);
           } else {
             tracks.push(_mapVideoTrack(videoMetadata, message));
           }
@@ -57,7 +61,8 @@ export async function fetchHandler(query: string, message: Discord.Message): Pro
     const [err, videoSearchResults] = await to(api.searchVideo(query));
 
     if (err || !videoSearchResults) {
-      // TODO: something went wrong while tyring to search videos
+      logger.log('error', `youtube-handler can\'t fetch videos from a search query: ${query}`);
+      logError(err);
     } else if (videoSearchResults) {
       const firstVideosResults = videoSearchResults.items.slice(0, 3);
 
@@ -65,7 +70,8 @@ export async function fetchHandler(query: string, message: Discord.Message): Pro
         const [videoErr, videoMetadata] = await to(YTDL.getBasicInfo(video.id.videoId));
 
         if (videoErr || !videoMetadata) {
-          // TODO: something went wrong while trying to fetch metadata from the first videos results
+          logger.log('error', `youtube-handler can't fetch a video metadata from a list of search videos response`);
+          logError(err);
         } else {
           tracks.push(_mapVideoTrack(videoMetadata, message));
         }
@@ -82,8 +88,13 @@ export async function fetchHandler(query: string, message: Discord.Message): Pro
  * @param track the track object containing metadata
  */
 export function getReadableStream(track: models.Track): Readable {
-  // TODO: add event listener `on#error` and write it error to logs
-  return YTDL(track.streamURL, { filter: 'audioonly' });
+  return YTDL(track.streamURL, {
+    filter: 'audioonly',
+  })
+    .on('error', (err) => {
+      logger.log('error', 'youtube-handler YTDL error from getReadableStream');
+      logError(err);
+    });
 }
 
 /**
