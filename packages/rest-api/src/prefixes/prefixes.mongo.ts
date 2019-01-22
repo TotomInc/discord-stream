@@ -54,3 +54,16 @@ export async function replacePrefix(guildID: string, prefix: string) {
 
   return await collection.replaceOne(filterQuery, query);
 }
+
+/**
+ * Delete the prefix document of a guild.
+ *
+ * @param guildID the id of the discord guild
+ */
+export async function deletePrefix(guildID: string) {
+  const client = await connection();
+  const collection = client.db(dbName).collection<models.CustomPrefix>('prefixes');
+  const filterQuery = { guildID };
+
+  return await collection.deleteOne(filterQuery);
+}

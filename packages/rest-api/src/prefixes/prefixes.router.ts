@@ -49,4 +49,20 @@ routes.put('/:guildID', async (req, res) => {
   return res.status(200).json(insertedPrefix);
 });
 
+routes.delete('/:guildID', async (req, res) => {
+  const guildID = req.params['guildID'] as (string | undefined);
+
+  if (!guildID) {
+    return res.status(400).end();
+  }
+
+  const response = await MongoPrefixes.deletePrefix(guildID);
+
+  if (!response.result.ok) {
+    return res.status(500).end();
+  }
+
+  return res.status(200).end();
+});
+
 export default routes;
