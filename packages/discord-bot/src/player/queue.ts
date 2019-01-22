@@ -35,7 +35,7 @@ export function addTracks(tracks: models.Track[], message: Discord.Message): mod
       const fieldName = `${track.title}`;
       const fieldValue = `${utils.secondsToHHMMSS(track.duration)} - queued by ${message.author.username}`;
 
-      richEmbed.addField(fieldName, fieldValue, true);
+      richEmbed.addField(fieldName, fieldValue);
     });
 
     if (tracks.length === 1) {
