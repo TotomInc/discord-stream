@@ -5,10 +5,10 @@ import * as MongoPrefixes from './prefixes.mongo';
 const routes = Express.Router();
 
 routes.get('/', async (req, res) => {
-  const collection = await MongoPrefixes.getPrefixes();
-  const prefixes = await collection.toArray();
+  const prefixes = await MongoPrefixes.getPrefixes();
+  const prefixesArray = await prefixes.toArray();
 
-  res.status(200).send(prefixes);
+  res.status(200).json(prefixesArray);
 });
 
 routes.get('/:guildID', async (req, res) => {
@@ -47,13 +47,6 @@ routes.put('/:guildID', async (req, res) => {
   const insertedPrefix = await MongoPrefixes.getPrefix(guildID);
 
   return res.status(200).json(insertedPrefix);
-});
-
-routes.get('/', async (req, res) => {
-  const prefixes = await MongoPrefixes.getPrefixes();
-  const prefixesArray = await prefixes.toArray();
-
-  res.status(200).json(prefixesArray);
 });
 
 export default routes;
