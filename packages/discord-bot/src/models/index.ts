@@ -1,3 +1,5 @@
+export * from './prefixes';
+
 export * from './command.model';
 export * from './providers.model';
 export * from './soundcloud.model';
