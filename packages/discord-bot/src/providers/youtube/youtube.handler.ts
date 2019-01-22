@@ -90,6 +90,7 @@ export async function fetchHandler(query: string, message: Discord.Message): Pro
 export function getReadableStream(track: models.Track): Readable {
   return YTDL(track.streamURL, {
     filter: 'audioonly',
+    highWaterMark: 1<<25,
   })
     .on('error', (err) => {
       logger.log('error', 'youtube-handler YTDL error from getReadableStream');
