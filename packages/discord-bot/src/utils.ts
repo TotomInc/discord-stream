@@ -2,12 +2,10 @@ import fs from 'fs';
 import { URL } from 'url';
 import path from 'path';
 import Discord from 'discord.js';
-import Debug from 'debug';
 import Moment from 'moment';
 
 import { Command, providers } from './models';
 
-const debug = Debug('streamer:utils');
 const providers: providers[] = ['youtube', 'soundcloud'];
 
 /**

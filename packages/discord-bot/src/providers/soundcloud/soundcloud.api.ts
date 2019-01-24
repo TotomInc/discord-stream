@@ -1,6 +1,7 @@
 import Axios, { AxiosError } from 'axios';
 
 import * as models from '../../models';
+import logger, { logError } from '../../logger';
 
 export default class SoundcloudAPI {
   private resolveBaseURL = 'http://api.soundcloud.com/resolve.json';
@@ -22,7 +23,10 @@ export default class SoundcloudAPI {
 
     return Axios.get<models.SoundcloudResponse>(this.resolveBaseURL, { params })
       .then((response) => response.data)
-      .catch((error: AxiosError | string) => {});
+      .catch((error: AxiosError) => {
+        logger.log('error', `soundcloud-api can\'t resolve an url: ${url}`);
+        logError(error);
+      });
   }
 
   /**
@@ -38,6 +42,9 @@ export default class SoundcloudAPI {
 
     return Axios.get<models.SoundcloudTrack[]>(this.searchTrackURL, { params })
       .then((response) => response.data)
-      .catch((error: AxiosError | string) => {});
+      .catch((error: AxiosError) => {
+        logger.log('error', `soundcloud-api can\'t search track with query: ${query}`);
+        logError(error);
+      });
   }
 }

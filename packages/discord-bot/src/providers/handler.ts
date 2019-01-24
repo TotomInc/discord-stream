@@ -21,7 +21,7 @@ export async function handleProvider(
   const [err, tracks] = await to(_fetchMetadata(provider, query, message));
 
   if (err || !tracks || tracks.length <= 0) {
-    message.channel.send(`Your track haven't been queued because the metadata could not be fetched (blocked by a provider).`);
+    message.channel.send(`Your track haven't been queued because the metadata could not be fetched.`);
   }
 
   return tracks || [];
