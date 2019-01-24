@@ -1,61 +1,65 @@
-import fs from 'fs-extra';
-import path from 'path';
+import dotenv from 'dotenv';
+import axios from 'axios';
 import Discord from 'discord.js';
-import JSONDB from 'node-json-db';
 
-export const prefixes: Discord.Collection<string, string> = new Discord.Collection();
+import * as models from './models';
+
+dotenv.config({
+  path: require('find-config')('.env'),
+});
+
+export const prefixesCollection: Discord.Collection<string, string> = new Discord.Collection();
 export const unauthorizedPrefixes = ['$note', '$dev'];
 
-const dbFilePath = path.join(__dirname, '../db/prefixes.json');
+const MONGO_SERVER_URL = process.env['MONGO_SERVER_URL'];
 
-/** We need to ensure that `db/prefixes.json` exists */
-fs.ensureFileSync(dbFilePath);
-
-/**
- * If the DB file have been created, it is empty and we need to initialize a
- * JSON object inside.
- */
-if (fs.readFileSync(dbFilePath).toString('utf8').length <= 0) {
-  fs.writeFileSync(dbFilePath, '{}');
+if (!MONGO_SERVER_URL) {
+  throw new Error('No MONGO_SERVER_URL specified in the .env file');
 }
 
-const db = new JSONDB(dbFilePath, true, true);
-
 /**
- * Load all prefixes from the JSON DB into the Discord collection `prefixes`,
- * return a promise which is resolved when it's done.
+ * Call the prefixes API endpoint to retrieve all prefixes and map them into a
+ * Discord collection. The promise resolve when the prefixes are fully loaded
+ * into the collection.
  */
 export function loadPrefixes(): Promise<Discord.Collection<string, string>> {
-  const dbPrefixes = db.getData('/') as { [guildID: string ]: string};
-  const prefixesKeys = Object.keys(dbPrefixes);
-
   return new Promise((resolve, reject) => {
-    try {
-      for (const key of prefixesKeys) {
-        const guildPrefix = dbPrefixes[key];
+    axios.get<models.Prefix[]>(`${MONGO_SERVER_URL}/api/prefixes`)
+      .then((response) => response.data)
+      .then((prefixes) => {
+        for (const prefix of prefixes) {
+          prefixesCollection.set(prefix.guildID, prefix.prefix);
+        }
 
-        prefixes.set(key, guildPrefix);
-      }
-
-      return resolve(prefixes);
-    } catch (error) {
-      return reject(error);
-    }
+        resolve(prefixesCollection);
+      })
+      .catch((err) => reject(err));
   });
 }
 
 /**
- * Set a new prefix both on the `prefixes` colletion (to be used in real-time)
- * and on the JSON DB (persistence).
+ * Set the new prefix for a guild with the API in the DB. Returns a promise
+ * which resolves if the response status is 200. Update in real-time the
+ * prefixes collection.
  *
  * @param message the discord message that initiated this
  * @param prefix the guild prefix
  */
-export function setPrefix(message: Discord.Message, prefix: string) {
+export function setPrefix(message: Discord.Message, prefix: string): Promise<Discord.Collection<string, string>> {
   const guildID = message.guild.id;
 
-  db.push(`/${guildID}`, prefix, true);
-  prefixes.set(guildID, prefix!);
+  return new Promise((resolve, reject) => {
+    axios.put(`${MONGO_SERVER_URL}/api/prefixes/${guildID}?prefix=${prefix}`)
+      .then((response) => {
+        if (response.status === 200) {
+          prefixesCollection.set(guildID, prefix);
+          resolve(prefixesCollection);
+        } else {
+          reject(new Error(`Bad status code response: ${response.status}`));
+        }
+      })
+      .catch((err) => err);
+  });
 }
 
 /**
@@ -64,7 +68,7 @@ export function setPrefix(message: Discord.Message, prefix: string) {
  * @param message the discord message that initiated this
  */
 export function hasPrefix(message: Discord.Message): boolean {
-  return prefixes.has(message.guild.id);
+  return prefixesCollection.has(message.guild.id);
 }
 
 /**
@@ -73,5 +77,5 @@ export function hasPrefix(message: Discord.Message): boolean {
  * @param message the discord message that initiated this
  */
 export function getPrefix(message: Discord.Message) {
-  return prefixes.get(message.guild.id);
+  return prefixesCollection.get(message.guild.id);
 }
