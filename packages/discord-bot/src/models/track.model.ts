@@ -1,5 +1,5 @@
 import Discord from 'discord.js';
-import { providers } from './providers.model';
+import { providers } from './providers';
 
 export interface Track {
   provider: providers;
