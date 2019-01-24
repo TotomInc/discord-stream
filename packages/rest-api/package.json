@@ -13,7 +13,6 @@
     "start": "node ./dist"
   },
   "dependencies": {
-    "discord.js": "^11.4.2",
     "express": "^4.16.4",
     "mongodb": "^3.1.10",
     "typescript": "^3.2.2"
