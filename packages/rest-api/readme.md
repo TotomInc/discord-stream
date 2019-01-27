@@ -1,6 +1,6 @@
 # rest-api
 
-Source for the rest-api.
+An API to communicate with the MongoDB.
 
 ## Endpoints
 
