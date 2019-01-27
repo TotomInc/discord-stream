@@ -4,6 +4,25 @@ An API to communicate with the MongoDB.
 
 ## Endpoints
 
+### Auth
+
+#### `GET /api/auth`
+
+Try to authenticate if the secret passed is the same. This endpoint is meant to be used internally and should not be used by users.
+
+##### Parameters
+
+- `secret`: the JWT secret should be the same as the rest-api server.
+
+##### Response
+
+```json
+{
+  auth: true,
+  token: "...",
+}
+```
+
 ### Prefixes
 
 #### `GET /api/prefixes`
