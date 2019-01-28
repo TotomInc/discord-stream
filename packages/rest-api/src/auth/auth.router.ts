@@ -8,7 +8,8 @@ const JWT_SECRET = process.env['JWT_SECRET'] as string;
 
 const routes = Express.Router();
 const jwtSignOptions: jwt.SignOptions = {
-  expiresIn: 86400,
+  // Expires after 1 hour
+  expiresIn: 3600,
 };
 
 /**
