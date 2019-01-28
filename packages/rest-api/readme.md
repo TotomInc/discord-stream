@@ -18,8 +18,8 @@ Try to authenticate if the secret passed is the same. This endpoint is meant to 
 
 ```json
 {
-  auth: true,
-  token: "...",
+  "auth": true,
+  "token": "...",
 }
 ```
 
