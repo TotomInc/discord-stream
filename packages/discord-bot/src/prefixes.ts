@@ -3,6 +3,7 @@ import axios from 'axios';
 import Discord from 'discord.js';
 
 import * as models from './models';
+import http from './http';
 
 dotenv.config({
   path: require('find-config')('.env'),
@@ -24,7 +25,7 @@ if (!MONGO_SERVER_URL) {
  */
 export function loadPrefixes(): Promise<Discord.Collection<string, string>> {
   return new Promise((resolve, reject) => {
-    axios.get<models.Prefix[]>(`${MONGO_SERVER_URL}/api/prefixes`)
+    http.get<models.Prefix[]>(`prefixes`)
       .then((response) => response.data)
       .then((prefixes) => {
         for (const prefix of prefixes) {
@@ -39,8 +40,8 @@ export function loadPrefixes(): Promise<Discord.Collection<string, string>> {
 
 /**
  * Set the new prefix for a guild with the API in the DB. Returns a promise
- * which resolves if the response status is 200. Update in real-time the
- * prefixes collection.
+ * which resolves if the response status code is `200`. Update in real-time
+ * the prefixes collection.
  *
  * @param message the discord message that initiated this
  * @param prefix the guild prefix
@@ -49,13 +50,13 @@ export function setPrefix(message: Discord.Message, prefix: string): Promise<Dis
   const guildID = message.guild.id;
 
   return new Promise((resolve, reject) => {
-    axios.put(`${MONGO_SERVER_URL}/api/prefixes/${guildID}?prefix=${prefix}`)
+    http.put(`prefixes/${guildID}?prefix=${prefix}`)
       .then((response) => {
         if (response.status === 200) {
           prefixesCollection.set(guildID, prefix);
           resolve(prefixesCollection);
         } else {
-          reject(new Error(`Bad status code response: ${response.status}`));
+          reject(new Error(`Bad status code response: ${response.status} - ${response.statusText}`));
         }
       })
       .catch((err) => err);

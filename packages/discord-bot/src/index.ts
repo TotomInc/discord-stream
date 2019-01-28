@@ -1,19 +1,32 @@
 import dotenv from 'dotenv';
 
-import * as prefixes from './prefixes';
-import { client } from './server';
-import logger from './logger';
-
 dotenv.config({
   path: require('find-config')('.env'),
 });
 
+import * as prefixes from './prefixes';
+import * as auth from './auth';
+import { client } from './server';
+import logger, { logError } from './logger';
+
 const token = process.env['DISCORD_TOKEN'];
 
-prefixes.loadPrefixes()
+/**
+ * 1. Authenticate the bot on the rest-api server.
+ * 2. Fetch and load all prefixes from the rest-api.
+ * 3. Log the Discord client.
+ */
+auth.authenticate()
+  .then((authResponse) => {
+    if (!authResponse || !authResponse.token) {
+      throw new Error('Unable to get a signed JWT from the auth-server');
+    }
+
+    return prefixes.loadPrefixes();
+  })
   .then(() => client.login(token))
   .then(() => logger.log('info', 'successfully logged in'))
-  .catch((err: Error) => logger.log('error', `${err.message}`));
+  .catch((err: Error) => logError(err));
 
 /**
  * When using nodemon, before restarting the app make sure to disconnect the
