@@ -9,7 +9,8 @@ dotenv.config({
 });
 
 export const prefixesCollection: Discord.Collection<string, string> = new Discord.Collection();
-export const unauthorizedPrefixes = ['$note', '$dev', '%'];
+export const unauthorizedPrefixes = ['$note', '$dev'];
+export const unauthorizedCharacters = ['%'];
 
 const MONGO_SERVER_URL = process.env['MONGO_SERVER_URL'];
 
@@ -51,10 +52,33 @@ export function setPrefix(message: Discord.Message, prefix: string): Promise<Dis
   const encodedPrefix = encodeURIComponent(prefix);
 
   return new Promise((resolve, reject) => {
-    http.put(`prefixes/${guildID}?prefix=${encodedPrefix}`)
+    http.put<models.Prefix>(`prefixes/${guildID}?prefix=${encodedPrefix}`)
       .then((response) => {
         if (response.status === 200) {
           prefixesCollection.set(guildID, prefix);
+          resolve(prefixesCollection);
+        } else {
+          reject(new Error(`Bad status code response: ${response.status} - ${response.statusText}`));
+        }
+      })
+      .catch((err) => err);
+  });
+}
+
+/**
+ * Delete the prefix for a guild by calling the API, then remove the guild
+ * prefix in real-time from the collection.
+ *
+ * @param message the discord message that initiated this
+ */
+export function deletePrefix(message: Discord.Message): Promise<Discord.Collection<string, string>> {
+  const guildID = message.guild.id;
+
+  return new Promise((resolve, reject) => {
+    http.delete(`prefixes/${guildID}`)
+      .then((response) => {
+        if (response.status === 200) {
+          prefixesCollection.delete(guildID);
           resolve(prefixesCollection);
         } else {
           reject(new Error(`Bad status code response: ${response.status} - ${response.statusText}`));
