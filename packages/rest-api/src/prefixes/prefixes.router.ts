@@ -29,16 +29,17 @@ routes.get('/:guildID', async (req, res) => {
 
 routes.put('/:guildID', async (req, res) => {
   const guildID = req.params['guildID'] as (string | undefined);
-  const prefix = req.query['prefix'] as (string | undefined);
+  const encodedPrefix = req.query['prefix'] as (string | undefined);
 
-  if (!guildID || !prefix) {
+  if (!guildID || !encodedPrefix) {
     return res.status(400).end();
   }
 
+  const decodedPrefix = decodeURIComponent(encodedPrefix);
   const prefixExists = await MongoPrefixes.getPrefix(guildID);
   const response = (!prefixExists)
-    ? await MongoPrefixes.insertPrefix(guildID, prefix)
-    : await MongoPrefixes.replacePrefix(guildID, prefix);
+    ? await MongoPrefixes.insertPrefix(guildID, decodedPrefix)
+    : await MongoPrefixes.replacePrefix(guildID, decodedPrefix);
 
   if (!response.result.ok) {
     return res.status(500).end();

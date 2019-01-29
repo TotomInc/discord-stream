@@ -1,6 +1,7 @@
 import { Command } from '../models';
 
 import * as prefixes from '../prefixes';
+import { logError } from '../logger';
 
 const prefix = process.env['PREFIX'];
 
@@ -32,13 +33,18 @@ module.exports = {
     }
 
     const newPrefix = args[0];
+    const includeUnauthorizedPrefix = !!prefixes.unauthorizedPrefixes.filter((p) => p.includes(newPrefix));
 
     /** If the guild owner tries to put an unauthorized custom prefix */
-    if (prefixes.unauthorizedPrefixes.indexOf(newPrefix) > -1) {
-      return message.reply(`\`${prefix}\` is an unauthorized prefix, please choose another one.`);
+    if (prefixes.unauthorizedPrefixes.indexOf(newPrefix) > -1 || includeUnauthorizedPrefix) {
+      return message.reply(`\`${newPrefix}\` is an unauthorized prefix, please choose another one.`);
     }
 
-    prefixes.setPrefix(message, newPrefix);
-    message.reply(`the custom prefix have been successfully changed to \`${newPrefix}\`, be sure to notify your guild members of this change!`);
+    prefixes.setPrefix(message, newPrefix)
+      .then(() => message.reply(`the custom prefix have been successfully changed to \`${newPrefix}\`, be sure to notify your guild members of this change!`))
+      .catch((err) => {
+        logError(err);
+        return message.reply('I am unable to change your prefix.');
+      })
   },
 } as Command;

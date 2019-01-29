@@ -1,5 +1,4 @@
 import dotenv from 'dotenv';
-import axios from 'axios';
 import Discord from 'discord.js';
 
 import * as models from './models';
@@ -10,7 +9,7 @@ dotenv.config({
 });
 
 export const prefixesCollection: Discord.Collection<string, string> = new Discord.Collection();
-export const unauthorizedPrefixes = ['$note', '$dev'];
+export const unauthorizedPrefixes = ['$note', '$dev', '%'];
 
 const MONGO_SERVER_URL = process.env['MONGO_SERVER_URL'];
 
@@ -48,9 +47,11 @@ export function loadPrefixes(): Promise<Discord.Collection<string, string>> {
  */
 export function setPrefix(message: Discord.Message, prefix: string): Promise<Discord.Collection<string, string>> {
   const guildID = message.guild.id;
+  // Prefix needs to be encoded when used as query HTTP parameters
+  const encodedPrefix = encodeURIComponent(prefix);
 
   return new Promise((resolve, reject) => {
-    http.put(`prefixes/${guildID}?prefix=${prefix}`)
+    http.put(`prefixes/${guildID}?prefix=${encodedPrefix}`)
       .then((response) => {
         if (response.status === 200) {
           prefixesCollection.set(guildID, prefix);
