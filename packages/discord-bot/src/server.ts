@@ -3,7 +3,7 @@ import Discord from 'discord.js';
 import _ from 'lodash';
 
 import * as utils from './utils';
-import { prefixes } from './prefixes';
+import { prefixesCollection } from './prefixes';
 import logger, { logError } from './logger';
 
 dotenv.config({
@@ -18,9 +18,9 @@ let activityInterval: NodeJS.Timeout;
 
 client.on('message', async (message) => {
   const text = message.content;
-  const hasCustomPrefix = prefixes.has(message.guild.id);
+  const hasCustomPrefix = prefixesCollection.has(message.guild.id);
   const customPrefix = (hasCustomPrefix)
-    ? prefixes.get(message.guild.id)
+    ? prefixesCollection.get(message.guild.id)
     : undefined;
 
   if (

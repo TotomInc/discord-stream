@@ -1,0 +1,38 @@
+{
+  "name": "rest-api",
+  "version": "0.0.0",
+  "main": "dist/index.js",
+  "author": "TotomInc <cazade.thomas@gmail.com>",
+  "license": "MIT",
+  "scripts": {
+    "build": "yarn build:clean && yarn build:compile",
+    "build:clean": "rm -rf ./dist",
+    "build:compile": "tsc -p ./tsconfig.json",
+    "dev": "nodemon",
+    "ndb": "ndb .",
+    "start": "node ./dist"
+  },
+  "dependencies": {
+    "dotenv": "^6.2.0",
+    "express": "^4.16.4",
+    "express-jwt": "^5.3.1",
+    "find-config": "^1.0.0",
+    "jsonwebtoken": "^8.4.0",
+    "mongodb": "^3.1.10",
+    "typescript": "^3.2.2",
+    "uuid": "^3.3.2"
+  },
+  "devDependencies": {
+    "@types/dotenv": "^6.1.0",
+    "@types/express": "^4.16.0",
+    "@types/express-jwt": "^0.0.41",
+    "@types/jsonwebtoken": "^8.3.0",
+    "@types/mongodb": "^3.1.18",
+    "@types/node": "^10.12.18",
+    "@types/uuid": "^3.4.4",
+    "ndb": "^1.0.42",
+    "nodemon": "^1.18.9",
+    "ts-node": "^7.0.1",
+    "tslint": "^5.12.0"
+  }
+}
