@@ -6,6 +6,7 @@ dotenv.config({
 
 import * as prefixes from './prefixes';
 import * as auth from './auth';
+import * as emojis from './emojis';
 import { client } from './server';
 import logger, { logError } from './logger';
 
@@ -25,6 +26,7 @@ auth.authenticate()
     return prefixes.loadPrefixes();
   })
   .then(() => client.login(token))
+  .then(() => emojis.loadEmojis(client))
   .then(() => logger.log('info', 'successfully logged in'))
   .catch((err: Error) => logError(err));
 
