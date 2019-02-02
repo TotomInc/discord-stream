@@ -1,6 +1,7 @@
 import to from 'await-to-js';
 
-import { Command } from '../models';
+import { Command, providers as Providers } from '../models';
+import * as emojis from '../emojis';
 import * as providers from '../providers';
 import * as player from '../player';
 import * as utils from '../utils';
@@ -44,7 +45,9 @@ module.exports = {
       return message.channel.send('The search query is too short, put at least 3 characters.');
     }
 
-    message.channel.send(`:mag_right: Searching on **${provider}**: \`${query}\``);
+    const emojiProvider = _getEmojiForProvider(provider);
+
+    message.channel.send(`${emojiProvider} searching on **${provider}**: \`${query}\``);
 
     /** If the sender is in a voice-channel and the bot is not, join voice-channel */
     if (member.voiceChannelID && !client.voiceConnections.has(message.guild.id)) {
@@ -78,3 +81,17 @@ module.exports = {
     }
   },
 } as Command;
+
+function _getEmojiForProvider(provider: Providers) {
+  switch (provider) {
+    case 'youtube':
+      const youtubeEmoji = emojis.customEmojis.find((emoji) => emoji.name === 'youtube')!;
+      return `<:${youtubeEmoji.name}:${youtubeEmoji.id}>`;
+      break;
+
+    case 'soundcloud':
+      const soundcloudEmoji = emojis.customEmojis.find((emoji) => emoji.name === 'soundcloud')!;
+      return `<:${soundcloudEmoji.name}:${soundcloudEmoji.id}>`;
+      break;
+  }
+}
