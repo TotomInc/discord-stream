@@ -12,6 +12,6 @@
     "types": ["node"],
     "lib": ["esnext"],
   },
-  "include": ["src/**/*.ts"],
+  "include": ["config/**/*.ts", "server/**/*.ts", "types/**/*.ts"],
   "exclude": ["node_modules"]
 }
