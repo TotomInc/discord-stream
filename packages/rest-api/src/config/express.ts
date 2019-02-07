@@ -1,5 +1,6 @@
 import express, { Request, Response, NextFunction } from 'express';
 import expressValidation from 'express-validation';
+import expressJwt from 'express-jwt';
 import bodyParser from 'body-parser';
 import helmet from 'helmet';
 import cors from 'cors';
@@ -7,8 +8,11 @@ import httpStatus from 'http-status';
 
 import { config } from './env';
 import { APIError } from '../server/helpers/APIError';
+import APIRoutes from '../index.route';
 
 export const app = express();
+
+const unprotectedPaths: string[] = ['/api/auth'];
 
 // Parse body params and attach them to `req.body`
 app.use(bodyParser.json());
@@ -20,12 +24,19 @@ app.use(helmet());
 // Enable CORS (Cross Origin Resource Sharing)
 app.use(cors());
 
+// Enable JWT protection, add paths exceptions
+app.use(expressJwt({ secret: config.jwtSecret }).unless({ path: unprotectedPaths }));
+
+// Inject API routes under `/api`
+app.use('/api', APIRoutes);
+
 // If error is not an instance of APIError, convert it
 app.use((err: any, req: Request, res: Response, next: NextFunction) => {
   if (err instanceof expressValidation.ValidationError) {
     const unifiedErrorMessage = err.errors.map(
       (error: any) => error.messages.join('. '),
     ).join(' and ');
+
     const error = new APIError(unifiedErrorMessage, err.status, true);
 
     return next(error);
