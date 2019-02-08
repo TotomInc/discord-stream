@@ -12,7 +12,7 @@ import APIRoutes from '../index.route';
 
 export const app = express();
 
-const unprotectedPaths: string[] = ['/api/auth'];
+const unprotectedPaths: string[] = ['/api/auth', '/api/login', '/api/login/callback'];
 
 // Parse body params and attach them to `req.body`
 app.use(bodyParser.json());

@@ -6,4 +6,10 @@ export default {
       secret: joi.string().required(),
     },
   },
+
+  oauthCallback: {
+    query: {
+      code: joi.string().required(),
+    },
+  },
 };
