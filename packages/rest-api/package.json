@@ -13,6 +13,7 @@
     "start": "node ./dist"
   },
   "dependencies": {
+    "axios": "^0.18.0",
     "bluebird": "^3.5.3",
     "body-parser": "^1.18.3",
     "cors": "^2.8.5",
@@ -27,6 +28,7 @@
     "jsonwebtoken": "^8.4.0",
     "mongodb": "^3.1.10",
     "mongoose": "^5.4.10",
+    "typegoose": "^5.5.0",
     "typescript": "^3.2.2",
     "uuid": "^3.3.2",
     "winston": "^3.2.1"
