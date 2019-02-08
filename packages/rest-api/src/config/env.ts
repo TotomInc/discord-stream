@@ -11,12 +11,12 @@ const envSchema = joi.object({
   NODE_ENV: joi.string()
     .allow(['development', 'production', 'test'])
     .default('development'),
-  API_PORT: joi.number().default(4000),
+  API_PORT: joi.number().port().default(4000),
   JWT_SECRET: joi.string().required(),
   MONGO_URI: joi.string().required(),
   INTERFACE_URI: joi.string().required(),
-  OWNER_USER_ID: joi.number().unsafe().required(),
-  BOT_USER_ID: joi.number().unsafe().required(),
+  OWNER_USER_ID: joi.any().required(),
+  BOT_USER_ID: joi.any().required(),
   DEFAULT_PREFIX: joi.string().required(),
   DISCORD_TOKEN: joi.string().required(),
   DISCORD_SECRET: joi.string().required(),
@@ -45,7 +45,7 @@ export const config = {
 
   bot: {
     prefix: vars.DEFAULT_PREFIX as string,
-    userID: vars.USER_ID as unknown as number,
+    userID: vars.BOT_USER_ID as unknown as number,
     ownerUserID: vars.OWNER_USER_ID as unknown as number,
   },
 
