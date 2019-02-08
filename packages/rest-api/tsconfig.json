@@ -8,6 +8,8 @@
     "esModuleInterop": true,
     "sourceMap": false,
     "resolveJsonModule": true,
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
     "baseUrl": ".",
     "types": ["node"],
     "lib": ["esnext"],
