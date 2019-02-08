@@ -24,13 +24,13 @@ const jwtSignOptions: jwt.SignOptions = {
 export function authenticate(req: Request, res: Response, next: NextFunction) {
   const secret = req.body['secret'] as string;
 
-  if (secret !== config.jwtSecret) {
+  if (secret !== config.secrets.jwt) {
     const err = new APIError('Authentication error', httpStatus.UNAUTHORIZED, true);
     return next(err);
   }
 
   const tokenUUID = uuid();
-  const token = jwt.sign({ id: tokenUUID }, config.jwtSecret, jwtSignOptions);
+  const token = jwt.sign({ id: tokenUUID }, config.secrets.jwt, jwtSignOptions);
 
   return res.json({ token });
 }
