@@ -25,7 +25,7 @@ app.use(helmet());
 app.use(cors());
 
 // Enable JWT protection, add paths exceptions
-app.use(expressJwt({ secret: config.jwtSecret }).unless({ path: unprotectedPaths }));
+app.use(expressJwt({ secret: config.secrets.jwt }).unless({ path: unprotectedPaths }));
 
 // Inject API routes under `/api`
 app.use('/api', APIRoutes);
