@@ -7,7 +7,7 @@
   "scripts": {
     "build": "yarn build:clean && yarn build:compile",
     "build:clean": "rm -rf ./dist",
-    "build:compile": "tsc -p ./tsconfig.json",
+    "build:compile": "tsc -p tsconfig.json",
     "dev": "nodemon",
     "ndb": "ndb .",
     "start": "node ./dist"
