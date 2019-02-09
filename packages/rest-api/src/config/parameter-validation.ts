@@ -12,4 +12,11 @@ export default {
       code: joi.string().required(),
     },
   },
+
+  newUser: {
+    body: {
+      clientID: joi.string().required(),
+      username: joi.string().required(),
+    },
+  },
 };
