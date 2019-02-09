@@ -4,7 +4,7 @@ import { InstanceType } from 'typegoose';
 import { User } from '../models/User';
 
 declare module 'express' {
-  interface Request extends express.Request {
+  interface Request {
     user?: InstanceType<User>;
   }
 }
