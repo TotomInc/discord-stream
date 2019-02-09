@@ -5,6 +5,7 @@ import { config } from './config/env';
 import { app } from './config/express';
 
 const mongooseConnectionOptions: mongoose.ConnectionOptions = {
+  useCreateIndex: true,
   useNewUrlParser: true,
   keepAlive: true,
 };
