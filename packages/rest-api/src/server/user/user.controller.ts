@@ -1,4 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
+import httpStatus from 'http-status';
 
 import { userModel } from './user.model';
 
@@ -17,7 +18,6 @@ export function load(req: Request, res: Response, next: NextFunction, id: string
     .then((user) => {
       if (user) {
         req.user = user;
-        console.log(req.user);
       }
 
       next();
@@ -51,8 +51,46 @@ export function create(req: Request, res: Response, next: NextFunction) {
  * @param res Express response
  */
 export function get(req: Request, res: Response) {
-  if (req.user) {
+  if (req.user && req.user.toJSON) {
     return res.json(req.user.toJSON());
+  }
+
+  return res.json({});
+}
+
+/**
+ * Update an already existing user in the DB. Must pass the entire user object
+ * to be validate.
+ *
+ * @param req Express request
+ * @param res Express response
+ * @param next Express next-function
+ */
+export function update(req: Request, res: Response, next: NextFunction) {
+  if (req.user && req.user.toJSON) {
+    const user = req.user;
+
+    user.clientID = req.body['clientID'] as string;
+    user.username = req.body['username'] as string;
+
+    return user.save()
+      .then(savedUser => res.json(savedUser.toJSON()))
+      .catch(err => next(err));
+  }
+
+  return res.sendStatus(httpStatus.NOT_FOUND);
+}
+
+/**
+ * @param req Express request
+ * @param res Express response
+ * @param next Express next-function
+ */
+export function remove(req: Request, res: Response, next: NextFunction) {
+  if (req.user && req.user.toJSON) {
+    return req.user.remove()
+      .then(deletedUser => res.json(deletedUser.toJSON()))
+      .catch(err => next(err));
   }
 
   return res.json({});
