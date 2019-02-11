@@ -9,7 +9,7 @@ class User extends Typegoose {
 
   @staticMethod
   static getByClientID(this: ModelType<User> & typeof User, clientID: string) {
-    return this.findOne({ clientID }, '-_id -__v');
+    return this.findOne({ clientID });
   }
 
   @instanceMethod
