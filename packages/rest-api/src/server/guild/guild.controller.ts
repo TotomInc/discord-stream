@@ -38,7 +38,7 @@ export function create(req: Request, res: Response, next: NextFunction) {
   const guild = new guildModel({
     guildID: req.body['guildID'] as string,
     name: req.body['name'] as string,
-    iconURL: req.body['iconURL'] as string || false,
+    iconURL: req.body['iconURL'] as string || '',
     ownerID: req.body['ownerID'] as string,
     region: req.body['region'] as string,
   });
@@ -103,5 +103,47 @@ export function remove(req: Request, res: Response, next: NextFunction) {
       .catch(err => next(err));
   }
 
-  return res.json({});
+  return res.json(httpStatus.NOT_FOUND);
+}
+
+/**
+ * Update the custom prefix of a guild (if it exists).
+ *
+ * @param req Express request
+ * @param res Express response
+ * @param next Express next-function
+ */
+export function updatePrefix(req: Request, res: Response, next: NextFunction) {
+  if (req.guild && req.guild.toJSON) {
+    const guild = req.guild;
+
+    guild.customPrefix = req.body['customPrefix'] as string;
+
+    return guild.save()
+    .then(savedGuild => res.json(savedGuild.toJSON()))
+    .catch(err => next(err));
+  }
+
+  return res.sendStatus(httpStatus.BAD_REQUEST);
+}
+
+/**
+ * Remove the custom-prefix property from the guild instance.
+ *
+ * @param req Express request
+ * @param res Express response
+ * @param next Express next-function
+ */
+export function removePrefix(req: Request, res: Response, next: NextFunction) {
+  if (req.guild && req.guild.toJSON) {
+    const guild = req.guild;
+
+    guild.customPrefix = undefined;
+
+    return guild.save()
+      .then(savedGuild => res.json(savedGuild.toJSON()))
+      .catch(err => next(err));
+  }
+
+  return res.json(httpStatus.NOT_FOUND);
 }

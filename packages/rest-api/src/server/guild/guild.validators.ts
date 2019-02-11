@@ -21,3 +21,9 @@ export const update = {
     customPrefix: joi.string().optional(),
   },
 };
+
+export const updatePrefix = {
+  body: {
+    customPrefix: joi.string().required(),
+  },
+};
