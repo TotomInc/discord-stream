@@ -1,6 +1,6 @@
 import { Typegoose, prop, staticMethod, ModelType } from 'typegoose';
 
-class Guild extends Typegoose {
+export class Guild extends Typegoose {
   @prop({ unique: true })
   guildID!: string;
 
