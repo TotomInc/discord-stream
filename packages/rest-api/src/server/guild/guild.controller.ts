@@ -75,7 +75,7 @@ export function getAll(req: Request, res: Response, next: NextFunction) {
     .then((guilds) => {
       const guildsMap: any = {};
 
-      guilds.forEach(guild => (guildsMap[guild.id] = guild.toJSON()));
+      guilds.forEach(guild => (guildsMap[guild.guildID] = guild.toJSON()));
 
       return res.json(guildsMap);
     })
@@ -97,7 +97,7 @@ export function getAllPrefixes(req: Request, res: Response, next: NextFunction) 
       const guildsWithPrefixes = guilds.filter(guild => guild.customPrefix);
       const prefixesMap: any = {};
 
-      guildsWithPrefixes.forEach(guild => prefixesMap[guild.id] = guild.customPrefix!);
+      guildsWithPrefixes.forEach(guild => prefixesMap[guild.guildID] = guild.customPrefix!);
 
       return res.json(prefixesMap);
     })
