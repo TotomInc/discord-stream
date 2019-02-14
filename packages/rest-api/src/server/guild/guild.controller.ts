@@ -83,6 +83,28 @@ export function getAll(req: Request, res: Response, next: NextFunction) {
 }
 
 /**
+ * Return an object of key (guild-id) / value (custom prefix) of all guilds
+ * which have a custom prefixes.
+ * TODO: paginate endpoint as it can impact performance
+ *
+ * @param req Express request
+ * @param res Express response
+ * @param next Express next-function
+ */
+export function getAllPrefixes(req: Request, res: Response, next: NextFunction) {
+  guildModel.find()
+    .then((guilds) => {
+      const guildsWithPrefixes = guilds.filter(guild => guild.customPrefix);
+      const prefixesMap: any = {};
+
+      guildsWithPrefixes.forEach(guild => prefixesMap[guild.id] = guild.customPrefix!);
+
+      return res.json(prefixesMap);
+    })
+    .catch(err => next(err));
+}
+
+/**
  * Update an already existing guild in the DB. Must pass the entire guild
  * object with required props to be validate.
  *

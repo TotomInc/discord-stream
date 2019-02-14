@@ -11,6 +11,10 @@ router.route('/')
   .get(guildCtrl.getAll)
   .post(validate(guildValidators.create), guildCtrl.create);
 
+// Get all guild prefixes
+router.route('/prefixes')
+  .get(guildCtrl.getAllPrefixes);
+
 // `guildID` CRUD operations
 router.route('/:guildID')
   .get(guildCtrl.get)
