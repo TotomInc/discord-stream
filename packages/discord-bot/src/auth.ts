@@ -10,6 +10,8 @@ dotenv.config({
   path: require('find-config')('.env'),
 });
 
+const revokeInterval = 1800 * 1000;
+
 /**
  * Create an interval that will generate a new JWT every 30 minutes.
  */
@@ -25,8 +27,8 @@ export let jwtRevokeInterval = setInterval(() => {
     .catch((err) => {
       logger.log('error', 'unable to generate a new jwt');
       logError(err);
-    })
-}, 1800 * 1000);
+    });
+}, revokeInterval);
 
 /**
  * Authenticate bot on the api auth-server and generate a JWT. If the
@@ -34,11 +36,15 @@ export let jwtRevokeInterval = setInterval(() => {
  * the new JWT.
  */
 export async function authenticate() {
-  const params = {
+  const body = {
     secret: config.secrets.jwt,
   };
 
-  return await axios.get<models.AuthResponse>(`${config.apiURI}/api/auth`, { params })
+  const headers = {
+    'Content-Type': 'application/json',
+  };
+
+  return await axios.post<models.AuthResponse>(`${config.apiURI}/api/auth`, body, { headers })
     .then((response) => {
       if (response.data && response.data.token) {
         initAxiosInstance(response.data.token);

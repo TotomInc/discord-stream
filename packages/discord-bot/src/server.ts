@@ -4,8 +4,10 @@ import _ from 'lodash';
 
 import * as utils from './utils';
 import { config } from './config/env';
-import { prefixesCollection } from './prefixes';
 import logger, { logError } from './logger';
+import { Guild } from './models/api/guild.model';
+import { GuildService } from './services/guild.service';
+import prefixService from './services/prefix.service';
 
 dotenv.config({
   path: require('find-config')('.env'),
@@ -15,14 +17,17 @@ export const client = new Discord.Client();
 export const commands = utils.loadCommands();
 export const prefix = config.bot.prefix;
 
+const guildService = new GuildService();
+
 let activityInterval: NodeJS.Timeout;
 
+/**
+ * On message handler logic.
+ */
 client.on('message', async (message) => {
   const text = message.content;
-  const hasCustomPrefix = prefixesCollection.has(message.guild.id);
-  const customPrefix = (hasCustomPrefix)
-    ? prefixesCollection.get(message.guild.id)
-    : undefined;
+  const hasCustomPrefix = prefixService.has(message);
+  const customPrefix = prefixService.get(message);
 
   if (
     (!hasCustomPrefix && !text.startsWith(prefix))
@@ -51,8 +56,33 @@ client.on('message', async (message) => {
   }
 });
 
+/**
+ * When the bot is ready, setup the activity interval.
+ */
 client.on('ready', () => {
   activityInterval = setInterval(() => _setActivity(), 300000);
+});
+
+/**
+ * When the bot joins a guild, we store this new guild into the db.
+ */
+client.on('guildCreate', (guild) => {
+  const data: Guild = {
+    guildID: guild.id,
+    name: guild.name,
+    ownerID: guild.ownerID,
+    region: guild.region,
+    iconURL: guild.iconURL || undefined,
+  };
+
+  guildService.create(data);
+});
+
+/**
+ * When the bot leave a guild, we delete the guild from the db.
+ */
+client.on('guildDelete', (guild) => {
+  guildService.delete(guild.id);
 });
 
 /**

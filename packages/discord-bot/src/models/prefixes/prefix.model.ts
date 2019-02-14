@@ -1,4 +1,3 @@
 export interface Prefix {
-  guildID: string;
-  prefix: string;
+  [guildID: string]: string;
 }

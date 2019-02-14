@@ -5,16 +5,17 @@ dotenv.config({
 });
 
 import { config } from './config/env';
-import * as prefixes from './prefixes';
 import * as auth from './auth';
 import * as emojis from './emojis';
 import { client } from './server';
 import logger, { logError } from './logger';
+import prefixesService from './services/prefix.service';
 
 /**
  * 1. Authenticate the bot on the rest-api server.
  * 2. Fetch and load all prefixes from the rest-api.
  * 3. Log the Discord client.
+ * 4. Load custom emojis from the "Note Bot" Discord server.
  */
 auth.authenticate()
   .then((authResponse) => {
@@ -22,7 +23,7 @@ auth.authenticate()
       throw new Error('Unable to get a signed JWT from the auth-server');
     }
 
-    return prefixes.loadPrefixes();
+    return prefixesService.load();
   })
   .then(() => client.login(config.tokens.discord))
   .then(() => emojis.loadEmojis(client))
@@ -31,9 +32,10 @@ auth.authenticate()
 
 /**
  * When using nodemon, before restarting the app make sure to disconnect the
- * bot from all the voice channels.
+ * bot from all voice channels.
  */
 process.once('SIGUSR2', async () => {
-  await client.voiceConnections.forEach((connection) => connection.disconnect());
+  await client.voiceConnections.forEach(connection => connection.disconnect());
+
   process.kill(process.pid, 'SIGUSR2');
 });
