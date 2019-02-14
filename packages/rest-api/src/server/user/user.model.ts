@@ -1,4 +1,6 @@
-import { Typegoose, prop, staticMethod, instanceMethod, ModelType, InstanceType } from 'typegoose';
+import { Typegoose, prop, staticMethod, ModelType } from 'typegoose';
+
+import { Favorite } from '../favorite/favorite.model';
 
 class User extends Typegoose {
   @prop({ unique: true })
@@ -7,17 +9,12 @@ class User extends Typegoose {
   @prop()
   username!: string;
 
+  @prop({ default: [] })
+  favorites!: Favorite[];
+
   @staticMethod
   static getByClientID(this: ModelType<User> & typeof User, clientID: string) {
     return this.findOne({ clientID });
-  }
-
-  @instanceMethod
-  updateUser(this: InstanceType<User>, user: { clientID: string, username: string }) {
-    this.clientID = user.clientID;
-    this.username = user.username;
-
-    return this.save();
   }
 }
 

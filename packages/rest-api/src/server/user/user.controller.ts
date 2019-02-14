@@ -51,11 +51,11 @@ export function create(req: Request, res: Response, next: NextFunction) {
  * @param res Express response
  */
 export function get(req: Request, res: Response) {
-  if (req.user && req.user.toJSON) {
+  if (req.user && req.user._id) {
     return res.json(req.user.toJSON());
   }
 
-  return res.json({});
+  return res.json(httpStatus.NOT_FOUND);
 }
 
 /**
@@ -93,5 +93,5 @@ export function remove(req: Request, res: Response, next: NextFunction) {
       .catch(err => next(err));
   }
 
-  return res.json({});
+  return res.json(httpStatus.NOT_FOUND);
 }
