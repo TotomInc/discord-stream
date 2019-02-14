@@ -4,13 +4,12 @@ dotenv.config({
   path: require('find-config')('.env'),
 });
 
+import { config } from './config/env';
 import * as prefixes from './prefixes';
 import * as auth from './auth';
 import * as emojis from './emojis';
 import { client } from './server';
 import logger, { logError } from './logger';
-
-const token = process.env['DISCORD_TOKEN'];
 
 /**
  * 1. Authenticate the bot on the rest-api server.
@@ -25,7 +24,7 @@ auth.authenticate()
 
     return prefixes.loadPrefixes();
   })
-  .then(() => client.login(token))
+  .then(() => client.login(config.tokens.discord))
   .then(() => emojis.loadEmojis(client))
   .then(() => logger.log('info', 'successfully logged in'))
   .catch((err: Error) => logError(err));

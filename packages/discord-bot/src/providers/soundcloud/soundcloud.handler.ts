@@ -2,13 +2,13 @@ import Discord from 'discord.js';
 import to from 'await-to-js';
 
 import logger, { logError } from '../../logger';
+import { config } from '../../config/env';
 import * as utils from '../../utils';
 import * as models from '../../models';
 import * as SoundcloudGuard from './soundcloud.guard';
 import SoundcloudAPI from './soundcloud.api';
 
 const api = new SoundcloudAPI();
-const key = process.env['SOUNDCLOUD_TOKEN'];
 
 /**
  * Call the right method to fetch metadata of track(s) depending on the query
@@ -58,7 +58,7 @@ export async function fetchHandler(query: string, message: Discord.Message): Pro
  * @param track the track object containing metadata
  */
 export function getReadableStreamURL(track: models.Track): string {
-  return `${track.streamURL}?client_id=${key}`;
+  return `${track.streamURL}?client_id=${config.tokens.soundcloud}`;
 }
 
 /**

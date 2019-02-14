@@ -1,10 +1,11 @@
 import _ from 'lodash';
 
 import { Command } from '../models';
+import { config } from '../config/env';
 import * as utils from '../utils';
 import * as player from '../player';
 
-const prefix = process.env['PREFIX'];
+const prefix = config.bot.prefix;
 const pageSize = 10;
 
 module.exports = {

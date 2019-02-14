@@ -3,6 +3,7 @@ import Discord from 'discord.js';
 import _ from 'lodash';
 
 import * as utils from './utils';
+import { config } from './config/env';
 import { prefixesCollection } from './prefixes';
 import logger, { logError } from './logger';
 
@@ -12,7 +13,7 @@ dotenv.config({
 
 export const client = new Discord.Client();
 export const commands = utils.loadCommands();
-export const prefix = process.env['PREFIX'] as string;
+export const prefix = config.bot.prefix;
 
 let activityInterval: NodeJS.Timeout;
 

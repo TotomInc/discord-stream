@@ -1,9 +1,9 @@
+import * as prefixes from '../prefixes';
+import { config } from '../config/env';
+import { logError } from '../logger';
 import { Command } from '../models';
 
-import * as prefixes from '../prefixes';
-import { logError } from '../logger';
-
-const prefix = process.env['PREFIX'];
+const prefix = config.bot.prefix;
 
 module.exports = {
   name: 'prefix',

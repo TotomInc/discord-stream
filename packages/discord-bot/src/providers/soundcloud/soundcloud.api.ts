@@ -2,12 +2,13 @@ import Axios, { AxiosError } from 'axios';
 
 import * as models from '../../models';
 import logger, { logError } from '../../logger';
+import { config } from '../../config/env';
 
 export default class SoundcloudAPI {
   private resolveBaseURL = 'http://api.soundcloud.com/resolve.json';
   private searchTrackURL = 'http://api.soundcloud.com/tracks';
 
-  private clientID = process.env['SOUNDCLOUD_TOKEN'];
+  private clientID = config.tokens.soundcloud;
 
   /**
    * The resolve resource allows you to lookup and access API resources when

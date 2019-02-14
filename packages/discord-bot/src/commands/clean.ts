@@ -1,4 +1,7 @@
 import { Command } from '../models';
+import { config } from '../config/env';
+
+const botUserID = config.bot.userID.toString();
 
 module.exports = {
   name: 'clean',
@@ -8,7 +11,7 @@ module.exports = {
 
     channel.fetchMessages()
       .then((messages) => {
-        const botMessages = messages.filter((m) => m.member.id === process.env['USER_ID'] && m.deletable);
+        const botMessages = messages.filter((m) => m.member.id === botUserID && m.deletable);
         const deletePromises = botMessages.map((botMessage) => botMessage.delete());
 
         return Promise.all(deletePromises);

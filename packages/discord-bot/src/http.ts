@@ -1,13 +1,9 @@
 import axios from 'axios';
 
-const API_URL = process.env['MONGO_SERVER_URL'];
-
-if (!API_URL) {
-  throw new Error('No MONGO_SERVER_URL environment variable found in .env file');
-}
+import { config } from './config/env';
 
 const axiosInstance = axios.create({
-  baseURL: `${API_URL}/api`,
+  baseURL: `${config.apiURI}/api`,
 });
 
 /**

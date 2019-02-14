@@ -1,7 +1,8 @@
 import { Command } from '../models';
+import { config } from '../config/env';
 import * as utils from '../utils';
 
-const userID = process.env['USER_ID'] || '497409782072868864';
+const botUserID = config.bot.userID.toString();
 
 module.exports = {
   name: 'invite',
@@ -9,7 +10,7 @@ module.exports = {
   execute: (message, args) => {
     const richEmbed = utils.generateRichEmbed('Useful links', message.client)
       .setDescription(`
-        [Invite me](https://discordapp.com/oauth2/authorize?client_id=${userID}&permissions=0&scope=bot)
+        [Invite me](https://discordapp.com/oauth2/authorize?client_id=${botUserID}&permissions=0&scope=bot)
         [Source-code](https://github.com/TotomInc/discord-stream)
       `);
 

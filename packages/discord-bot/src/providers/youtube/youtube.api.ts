@@ -2,12 +2,13 @@ import Axios from 'axios';
 import YTDL from 'ytdl-core';
 
 import * as models from '../../models';
+import { config } from '../../config/env';
 
 export default class YoutubeAPI {
   private searchBaseURL = 'https://www.googleapis.com/youtube/v3/search';
   private playlistBaseURL = 'https://www.googleapis.com/youtube/v3/playlistItems';
 
-  private key = process.env['YOUTUBE_TOKEN'];
+  private key = config.tokens.youtube;
 
   /**
    * Get basic metadata from a YouTube video, uses YTDL.

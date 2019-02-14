@@ -3,6 +3,7 @@ import Discord from 'discord.js';
 
 import * as models from './models';
 import http from './http';
+import { config } from './config/env';
 
 dotenv.config({
   path: require('find-config')('.env'),
@@ -11,12 +12,6 @@ dotenv.config({
 export const prefixesCollection: Discord.Collection<string, string> = new Discord.Collection();
 export const unauthorizedPrefixes = ['$note', '$dev'];
 export const unauthorizedCharacters = ['%'];
-
-const MONGO_SERVER_URL = process.env['MONGO_SERVER_URL'];
-
-if (!MONGO_SERVER_URL) {
-  throw new Error('No MONGO_SERVER_URL specified in the .env file');
-}
 
 /**
  * Call the prefixes API endpoint to retrieve all prefixes and map them into a
