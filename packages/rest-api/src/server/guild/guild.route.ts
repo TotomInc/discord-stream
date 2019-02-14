@@ -8,6 +8,7 @@ const router = express.Router();
 
 // Endpoint used only to create a guild
 router.route('/')
+  .get(guildCtrl.getAll)
   .post(validate(guildValidators.create), guildCtrl.create);
 
 // `guildID` CRUD operations

@@ -63,6 +63,26 @@ export function get(req: Request, res: Response) {
 }
 
 /**
+ * Return a list of all guilds, in a JSON format.
+ * TODO: paginate endpoint as it can impact performance
+ *
+ * @param req Express request
+ * @param res Express response
+ * @param next Express next-function
+ */
+export function getAll(req: Request, res: Response, next: NextFunction) {
+  guildModel.find()
+    .then((guilds) => {
+      const guildsMap: any = {};
+
+      guilds.forEach(guild => (guildsMap[guild.id] = guild.toJSON()));
+
+      return res.json(guildsMap);
+    })
+    .catch(err => next(err));
+}
+
+/**
  * Update an already existing guild in the DB. Must pass the entire guild
  * object with required props to be validate.
  *
