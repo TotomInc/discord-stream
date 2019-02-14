@@ -2,7 +2,10 @@
   "extends": "tslint-config-airbnb",
   "rules": {
     "import-name": ["off"],
-    "max-line-length": [true, 120],
+    "max-line-length": [true, {
+      "limit": 120,
+      "ignore-pattern": "^(`|^('|^\""
+    }],
     "variable-name": false,
     "align": false
   }
