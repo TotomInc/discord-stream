@@ -29,14 +29,14 @@ import { AuthService } from './services/auth.service';
   }
 
   const prefixes = await import('./prefixes');
-  const [prefixesErr] = await prefixes.load();
+  const [prefixesErr] = await to(prefixes.load());
 
   if (prefixesErr) {
     throw new Error('Unable to load guild prefixes.');
   }
 
   const { client } = await import('./server');
-  const [loginErr] = await client.login(config.tokens.discord);
+  const [loginErr] = await to(client.login(config.tokens.discord));
 
   if (loginErr) {
     throw new Error('Unable to login to Discord servers.');
