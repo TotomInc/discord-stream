@@ -1,4 +1,3 @@
 export interface AuthResponse {
-  token: string | null;
-  auth: boolean;
+  token: string | undefined;
 }
