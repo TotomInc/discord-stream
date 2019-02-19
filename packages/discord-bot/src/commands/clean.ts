@@ -11,8 +11,8 @@ module.exports = {
 
     channel.fetchMessages()
       .then((messages) => {
-        const botMessages = messages.filter((m) => m.member.id === botUserID && m.deletable);
-        const deletePromises = botMessages.map((botMessage) => botMessage.delete());
+        const botMessages = messages.filter(m => m.member.id === botUserID && m.deletable);
+        const deletePromises = botMessages.map(botMessage => botMessage.delete());
 
         return Promise.all(deletePromises);
       })

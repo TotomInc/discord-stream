@@ -15,7 +15,7 @@ const logger = Winston.createLogger({
       filename: path.join(__dirname, '../logs/combined.log'),
       format: Winston.format.combine(
         Winston.format.timestamp(),
-        Winston.format.printf((info) => `[${info.timestamp}] ${info.level}: ${info.message}`),
+        Winston.format.printf(info => `[${info.timestamp}] ${info.level}: ${info.message}`),
       ),
     }),
 
@@ -24,7 +24,7 @@ const logger = Winston.createLogger({
       filename: path.join(__dirname, '../logs/errors.log'),
       format: Winston.format.combine(
         Winston.format.timestamp(),
-        Winston.format.printf((info) => `[${info.timestamp}] ${info.level}: ${info.message}`),
+        Winston.format.printf(info => `[${info.timestamp}] ${info.level}: ${info.message}`),
       ),
     }),
   ],

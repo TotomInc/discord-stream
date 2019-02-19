@@ -3,7 +3,7 @@ import to from 'await-to-js';
 
 import logger, { logError } from '../../logger';
 import { config } from '../../config/env';
-import * as utils from '../../utils';
+import { isURL } from '../../utils/url';
 import * as models from '../../models';
 import * as SoundcloudGuard from './soundcloud.guard';
 import SoundcloudAPI from './soundcloud.api';
@@ -19,21 +19,20 @@ const api = new SoundcloudAPI();
  */
 export async function fetchHandler(query: string, message: Discord.Message): Promise<models.Track[]> {
   const tracks: models.Track[] = [];
-  const isURL = utils.isURL(query);
+  const isValidURL = isURL(query);
 
-  if (isURL) {
+  if (isValidURL) {
     const [err, resource] = await to(api.resolveURL(query));
 
     if (err || !resource) {
       logger.log('error', 'soundcloud-handler can\'t fetch the resource from the fetchHandler using an URL');
       logError(err);
-    }
-    else if (resource && SoundcloudGuard.isTrack(resource)) {
-      tracks.push(_mapSoundcloudTrack(resource, message));
+    } else if (resource && SoundcloudGuard.isTrack(resource)) {
+      tracks.push(mapSoundcloudTrack(resource, message));
     } else if (resource && SoundcloudGuard.isPlaylist(resource)) {
       resource.tracks
-        .map((track) => _mapSoundcloudTrack(track, message))
-        .forEach((track) => tracks.push(track));
+        .map(track => mapSoundcloudTrack(track, message))
+        .forEach(track => tracks.push(track));
     }
   } else {
     const [err, trackSearchResults] = await to(api.searchTrack(query));
@@ -44,8 +43,8 @@ export async function fetchHandler(query: string, message: Discord.Message): Pro
     } else if (trackSearchResults) {
       trackSearchResults
         .slice(0, 3)
-        .map((track) => _mapSoundcloudTrack(track, message))
-        .forEach((track) => tracks.push(track));
+        .map(track => mapSoundcloudTrack(track, message))
+        .forEach(track => tracks.push(track));
     }
   }
 
@@ -67,7 +66,7 @@ export function getReadableStreamURL(track: models.Track): string {
  * @param track raw track metadata
  * @param message the discord message that initiated this
  */
-function _mapSoundcloudTrack(track: models.SoundcloudTrack, message: Discord.Message): models.Track {
+function mapSoundcloudTrack(track: models.SoundcloudTrack, message: Discord.Message): models.Track {
   return {
     provider: 'soundcloud',
     url: track.permalink_url,
@@ -78,5 +77,5 @@ function _mapSoundcloudTrack(track: models.SoundcloudTrack, message: Discord.Mes
     thumbnailURL: track.artwork_url,
     duration: (track.duration / 1000).toString(),
     initiator: message,
-  }
+  };
 }

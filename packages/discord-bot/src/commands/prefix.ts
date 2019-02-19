@@ -1,4 +1,4 @@
-import prefixesService from '../services/prefix.service';
+import * as prefixes from '../prefixes';
 import { config } from '../config/env';
 import { logError } from '../logger';
 import { Command } from '../models';
@@ -9,7 +9,7 @@ module.exports = {
   name: 'prefix',
   description: `set or change a custom prefix for this guild, you can also delete a prefix by sending \`${prefix} prefix delete\``,
   execute: (message, args) => {
-    const customPrefix = prefixesService.get(message);
+    const customPrefix = prefixes.get(message);
     const deleteMode = (args[0] === 'delete');
 
     /**
@@ -40,7 +40,7 @@ module.exports = {
      * custom prefix for this guild if it exists.
      */
     if (deleteMode && customPrefix) {
-      return prefixesService.delete(message)
+      return prefixes.remove(message)
         .then(() => message.reply(`my custom prefix on this server have been deleted, you can still call me with the prefix \`${prefix}\`.`))
         .catch((err) => {
           logError(err);
@@ -59,7 +59,7 @@ module.exports = {
       return message.reply(`you haven\'t put a custom prefix in the command, example: \`${prefix} prefix <your-prefix>\`.`);
     }
 
-    const validPrefix = prefixesService.check(newPrefix);
+    const validPrefix = prefixes.check(newPrefix);
 
     /**
      * If the guild owner tries to put an unauthorized custom prefix.
@@ -79,7 +79,7 @@ module.exports = {
      * Finally setup the custom-prefix after it has successfully passed all
      * conditions.
      */
-    prefixesService.set(message, newPrefix)
+    prefixes.set(message, newPrefix)
       .then(() => message.reply(`the custom prefix have been successfully changed to \`${newPrefix}\`, be sure to notify your guild members of this change!`))
       .catch((err) => {
         logError(err);

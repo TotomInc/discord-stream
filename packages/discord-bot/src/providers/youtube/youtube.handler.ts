@@ -4,7 +4,7 @@ import Discord from 'discord.js';
 import YTDL from 'ytdl-core';
 import to from 'await-to-js';
 
-import * as utils from '../../utils';
+import { isURL } from '../../utils/url';
 import * as models from '../../models';
 import * as YoutubeGuard from './youtube.guard';
 import YoutubeAPI from './youtube.api';
@@ -21,11 +21,11 @@ const api = new YoutubeAPI();
  */
 export async function fetchHandler(query: string, message: Discord.Message): Promise<models.Track[]> {
   const tracks: models.Track[] = [];
-  const isURL = utils.isURL(query);
-  const isVideo = (isURL) ? YoutubeGuard.isVideo(query) : false;
-  const isPlaylist = (isURL) ? YoutubeGuard.isPlaylist(query) : false;
+  const isValidURL = isURL(query);
+  const isVideo = (isValidURL) ? YoutubeGuard.isVideo(query) : false;
+  const isPlaylist = (isValidURL) ? YoutubeGuard.isPlaylist(query) : false;
 
-  if (isURL) {
+  if (isValidURL) {
     if (isVideo && !isPlaylist) {
       const [err, videoMetadata] = await to(api.getVideo(query));
 
@@ -33,26 +33,26 @@ export async function fetchHandler(query: string, message: Discord.Message): Pro
         logger.log('error', 'youtube-handler can\'t fetch a video metadata from the fetchHandler');
         logError(err);
       } else {
-        tracks.push(_mapVideoTrack(videoMetadata, message));
+        tracks.push(mapVideoTrack(videoMetadata, message));
       }
     } else if (isPlaylist) {
-      const playlistID = _getPlaylistID(query)!;
+      const playlistID = getPlaylistID(query)!;
       const [err, playlistMetadata] = await to(api.getPlaylist(playlistID));
 
       if (err || !playlistMetadata) {
         logger.log('error', 'youtube-handler can\'t fetch playlist metadata from the fetchHandler');
         logError(err);
       } else {
-        const playlistVideoIDs = playlistMetadata.items.map((item) => item.snippet.resourceId.videoId);
+        const playlistVideoIDs = playlistMetadata.items.map(item => item.snippet.resourceId.videoId);
 
         for (const videoID of playlistVideoIDs) {
-          const [videoErr, videoMetadata] = await to(api.getVideo(_buildURLFromID(videoID)));
+          const [videoErr, videoMetadata] = await to(api.getVideo(buildURLFromID(videoID)));
 
           if (videoErr || !videoMetadata) {
             logger.log('err', 'youtube-handler can\'t fetch a video metadata from a playlist in the fetchHandler');
             logError(err);
           } else {
-            tracks.push(_mapVideoTrack(videoMetadata, message));
+            tracks.push(mapVideoTrack(videoMetadata, message));
           }
         }
       }
@@ -70,10 +70,13 @@ export async function fetchHandler(query: string, message: Discord.Message): Pro
         const [videoErr, videoMetadata] = await to(YTDL.getBasicInfo(video.id.videoId));
 
         if (videoErr || !videoMetadata) {
-          logger.log('error', `youtube-handler can't fetch a video metadata from a list of search videos response`);
+          logger.log(
+            'error',
+            'youtube-handler can\'t fetch a video metadata from a list of search videos response',
+          );
           logError(err);
         } else {
-          tracks.push(_mapVideoTrack(videoMetadata, message));
+          tracks.push(mapVideoTrack(videoMetadata, message));
         }
       }
     }
@@ -90,7 +93,7 @@ export async function fetchHandler(query: string, message: Discord.Message): Pro
 export function getReadableStream(track: models.Track): Readable {
   return YTDL(track.streamURL, {
     filter: 'audioonly',
-    highWaterMark: 1<<25,
+    highWaterMark: 1 << 25,
   })
     .on('error', (err) => {
       logger.log('error', 'youtube-handler YTDL error from getReadableStream');
@@ -103,7 +106,7 @@ export function getReadableStream(track: models.Track): Readable {
  *
  * @param id id of the YouTube video
  */
-function _buildURLFromID(id: string): string {
+function buildURLFromID(id: string): string {
   return `https://youtube.com/watch?v=${id}`;
 }
 
@@ -113,7 +116,7 @@ function _buildURLFromID(id: string): string {
  * @param video metadata of the video retrieved
  * @param message initiator of the track
  */
-function _mapVideoTrack(video: YTDL.videoInfo, message: Discord.Message): models.Track {
+function mapVideoTrack(video: YTDL.videoInfo, message: Discord.Message): models.Track {
   return {
     provider: 'youtube',
     url: video.video_url,
@@ -133,6 +136,6 @@ function _mapVideoTrack(video: YTDL.videoInfo, message: Discord.Message): models
  *
  * @param url url of a YouTube playlist
  */
-function _getPlaylistID(url: string) {
+function getPlaylistID(url: string) {
   return new URL(url).searchParams.get('list');
 }

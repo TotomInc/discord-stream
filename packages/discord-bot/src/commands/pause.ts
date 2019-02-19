@@ -1,8 +1,9 @@
 import * as Discord from 'discord.js';
 
+import { generateRichEmbed } from '../utils/rich-embed';
+import { secondsToHHMMSS } from '../utils/time';
 import { Command } from '../models';
 import * as player from '../player';
-import * as utils from '../utils';
 
 module.exports = {
   name: 'pause',
@@ -13,13 +14,13 @@ module.exports = {
     if (!guildVoiceConnection || !guildVoiceConnection.speaking) {
       message.reply('the bot is not speaking, try to play something.');
     } else {
-      const richEmbed = utils.generateRichEmbed('Track paused...', message.client);
+      const richEmbed = generateRichEmbed('Track paused...', message.client);
       const currentTrack = player.getCurrentTrack(message);
 
       if (currentTrack) {
         const trackTime = guildVoiceConnection.dispatcher.time / 1000;
 
-        richEmbed.addField(currentTrack.title, `${utils.secondsToHHMMSS(trackTime)}/${utils.secondsToHHMMSS(currentTrack.duration)}`);
+        richEmbed.addField(currentTrack.title, `${secondsToHHMMSS(trackTime)}/${secondsToHHMMSS(currentTrack.duration)}`);
       }
 
       guildVoiceConnection.dispatcher.pause();

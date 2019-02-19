@@ -1,7 +1,8 @@
 import Discord from 'discord.js';
 
+import { generateRichEmbed } from '../utils/rich-embed';
+import { secondsToHHMMSS } from '../utils/time';
 import * as models from '../models';
-import * as utils from '../utils';
 
 /** Guild queues are stored and can be retrieved with a `guildID` */
 const queues: Discord.Collection<string, models.Track[]> = new Discord.Collection();
@@ -28,12 +29,12 @@ export function addTracks(tracks: models.Track[], message: Discord.Message): mod
 
   if (tracks.length > 0) {
     const richEmbedTitle = (tracks.length > 1) ? `Queued ${tracks.length} tracks` : 'Queued a track';
-    const richEmbed = utils.generateRichEmbed(richEmbedTitle, message.client);
+    const richEmbed = generateRichEmbed(richEmbedTitle, message.client);
     const firstTracks = (tracks.length > 10) ? tracks.slice(0, 10) : [...tracks];
 
     firstTracks.forEach((track) => {
       const fieldName = `${track.title}`;
-      const fieldValue = `${utils.secondsToHHMMSS(track.duration)} - queued by ${message.author.username}`;
+      const fieldValue = `${secondsToHHMMSS(track.duration)} - queued by ${message.author.username}`;
 
       richEmbed.addField(fieldName, fieldValue);
     });
@@ -46,7 +47,6 @@ export function addTracks(tracks: models.Track[], message: Discord.Message): mod
 
     message.channel.send(richEmbed);
   }
-
 
   return queues.get(guildID) || [];
 }

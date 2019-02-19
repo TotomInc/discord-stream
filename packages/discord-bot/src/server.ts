@@ -1,37 +1,29 @@
-import dotenv from 'dotenv';
 import Discord from 'discord.js';
 import _ from 'lodash';
 
-import * as utils from './utils';
 import { config } from './config/env';
+import { loadCommands } from './utils/load-commands';
+import * as prefixes from './prefixes';
 import logger, { logError } from './logger';
 import { Guild } from './models/api/guild.model';
 import { GuildService } from './services/guild.service';
-import prefixService from './services/prefix.service';
-
-dotenv.config({
-  path: require('find-config')('.env'),
-});
 
 export const client = new Discord.Client();
-export const commands = utils.loadCommands();
-export const prefix = config.bot.prefix;
+export const commands = loadCommands();
 
 const guildService = new GuildService();
-
-let activityInterval: NodeJS.Timeout;
 
 /**
  * On message handler logic.
  */
 client.on('message', async (message) => {
   const text = message.content;
-  const hasCustomPrefix = prefixService.has(message);
-  const customPrefix = prefixService.get(message);
+  const hasCustomPrefix = prefixes.has(message);
+  const customPrefix = prefixes.get(message);
 
   if (
-    (!hasCustomPrefix && !text.startsWith(prefix))
-    || (hasCustomPrefix && !text.startsWith(prefix) && !text.startsWith(customPrefix!))
+    (!hasCustomPrefix && !text.startsWith(config.bot.prefix))
+    || (hasCustomPrefix && !text.startsWith(config.bot.prefix) && !text.startsWith(customPrefix!))
     || message.author.bot
   ) {
     return;
@@ -39,7 +31,7 @@ client.on('message', async (message) => {
 
   const args = (text.startsWith(customPrefix!))
     ? text.trim().slice(customPrefix!.length).trim().split(/ +/)
-    : text.trim().slice(prefix.length).trim().split(/ +/);
+    : text.trim().slice(config.bot.prefix.length).trim().split(/ +/);
 
   const command = args.shift()!.toLowerCase();
 
@@ -52,6 +44,7 @@ client.on('message', async (message) => {
   } catch (error) {
     logger.log('error', 'Unable to execute a command');
     logError(error);
+
     message.reply('There was an error while trying to execute this command, please try again later.');
   }
 });
@@ -60,7 +53,9 @@ client.on('message', async (message) => {
  * When the bot is ready, setup the activity interval.
  */
 client.on('ready', () => {
-  activityInterval = setInterval(() => _setActivity(), 300000);
+  const activity = `for ${client.guilds.keyArray().length} | ${config.bot.prefix} help`;
+
+  client.user.setActivity(activity);
 });
 
 /**
@@ -84,31 +79,3 @@ client.on('guildCreate', (guild) => {
 client.on('guildDelete', (guild) => {
   guildService.delete(guild.id);
 });
-
-/**
- * Update the bot status message by picking a random message from the list.
- */
-function _setActivity() {
-  const messages = [
-    `for ${client.guilds.array().length} guilds | ${prefix} help`,
-    `for ${_getAmountUsers()} users | ${prefix} help`,
-  ];
-  const message = _.sample(messages);
-
-  if (message) {
-    client.user.setActivity(message);
-  }
-}
-
-/**
- * Get the total amount of users by looping on each guild that uses the bot.
- */
-function _getAmountUsers(): number {
-  let users = 0;
-
-  client.guilds.forEach((guild) => {
-    users += guild.memberCount;
-  });
-
-  return users;
-}

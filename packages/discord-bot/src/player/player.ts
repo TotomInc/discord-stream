@@ -27,17 +27,17 @@ export function playTrack(message: Discord.Message, tracks: models.Track[]) {
   const guildVoiceConnection = client.voiceConnections.get(guildID);
 
   if (!guildVoiceConnection) {
-    logger.log('info', `can't playTrack because the bot is expected to be in a voice-channel, and is not`);
+    logger.log('info', 'can\'t playTrack because the bot is expected to be in a voice-channel, and is not');
     return;
   }
 
   if (guildVoiceConnection.speaking) {
-    logger.log('info', `don't playTrack because the bot is actually speaking (and streaming something else)`);
+    logger.log('info', 'don\'t playTrack because the bot is actually speaking (and streaming something else)');
     return;
   }
 
   if (!tracks || tracks.length <= 0) {
-    logger.log('info', `there is nothing to play from playTrack`);
+    logger.log('info', 'there is nothing to play from playTrack');
     return;
   }
 
@@ -45,9 +45,9 @@ export function playTrack(message: Discord.Message, tracks: models.Track[]) {
   const stream = providers.handleStreamProvider(track.provider, track);
 
   if (stream.stream) {
-    _playReadableStream(guildVoiceConnection, message, stream);
+    playReadableStream(guildVoiceConnection, message, stream);
   } else if (stream.arbitraryURL && !stream.stream) {
-    _playArbitraryInput(guildVoiceConnection, message, stream);
+    playArbitraryInput(guildVoiceConnection, message, stream);
   }
 }
 
@@ -105,14 +105,16 @@ export function setVolume(message: Discord.Message, volume: number): boolean {
   if (!guildVoiceConnection) {
     message.reply('I am not in a voice-channel.');
     return false;
-  } else if (guildVoiceConnection && !guildVoiceConnection.speaking) {
+  }
+
+  if (guildVoiceConnection && !guildVoiceConnection.speaking) {
     message.reply('I am not speaking.');
     return false;
-  } else {
-    logger.log('info', `stream dispatcher volume set to ${volume / 100}`);
-    guildVoiceConnection.dispatcher.setVolume(volume / 100);
-    return true;
   }
+
+  logger.log('info', `stream dispatcher volume set to ${volume / 100}`);
+  guildVoiceConnection.dispatcher.setVolume(volume / 100);
+  return true;
 }
 
 /**
@@ -122,16 +124,16 @@ export function setVolume(message: Discord.Message, volume: number): boolean {
  * @param message the message that initiated this
  * @param stream the stream-provider object to determine nature of the resource
  */
-function _playReadableStream(
+function playReadableStream(
   guildVoiceConnection: Discord.VoiceConnection,
   message: Discord.Message,
   stream: models.StreamProvider,
 ): Discord.StreamDispatcher {
   return guildVoiceConnection.playStream(stream.stream!, streamOptions)
-    .on('error', (err) => logError(err))
+    .on('error', err => logError(err))
     .on('end', (reason) => {
       logger.log('info', `playStream ended with reason: ${reason}`);
-      _onTrackEnd(reason, message);
+      onTrackEnd(reason, message);
     });
 }
 
@@ -142,16 +144,16 @@ function _playReadableStream(
  * @param message the message that initiated this
  * @param stream the stream-provider object to determine nature of the resource
  */
-function _playArbitraryInput(
+function playArbitraryInput(
   guildVoiceConnection: Discord.VoiceConnection,
   message: Discord.Message,
   stream: models.StreamProvider,
 ): Discord.StreamDispatcher {
   return guildVoiceConnection.playArbitraryInput(stream.arbitraryURL!, streamOptions)
-    .on('error', (err) => logError(err))
+    .on('error', err => logError(err))
     .on('end', (reason) => {
       logger.log('info', `playStream ended with reason: ${reason}`);
-      _onTrackEnd(reason, message);
+      onTrackEnd(reason, message);
     });
 }
 
@@ -162,7 +164,7 @@ function _playArbitraryInput(
  * @param reason the reason of the `on#end` event that triggered this function
  * @param message the discord message that iniated the track
  */
-function _onTrackEnd(reason: string, message: Discord.Message): void {
+function onTrackEnd(reason: string, message: Discord.Message): void {
   const guildVoiceConnection = message.client.voiceConnections.get(message.guild.id);
   const guildQueue = queue.removeFirstTrack(message);
 

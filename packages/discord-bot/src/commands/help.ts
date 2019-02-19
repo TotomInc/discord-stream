@@ -1,14 +1,15 @@
 import { Command } from '../models';
-import prefixesService from '../services/prefix.service';
-import * as utils from '../utils';
+import * as prefixes from '../prefixes';
+import { loadCommands } from '../utils/load-commands';
+import { generateRichEmbed } from '../utils/rich-embed';
 
 module.exports = {
   name: 'help',
   description: 'show all available commands',
   execute: (message, args) => {
-    const commands = utils.loadCommands();
-    const embed = utils.generateRichEmbed('List of commands', message.client);
-    const customPrefix = prefixesService.get(message);
+    const commands = loadCommands();
+    const embed = generateRichEmbed('List of commands', message.client);
+    const customPrefix = prefixes.get(message);
 
     if (customPrefix) {
       embed.addField(

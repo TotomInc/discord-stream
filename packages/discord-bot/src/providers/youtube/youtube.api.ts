@@ -34,7 +34,7 @@ export default class YoutubeAPI {
     };
 
     return Axios.get<models.YoutubePlaylistItems>(this.playlistBaseURL, { params })
-      .then((response) => response.data)
+      .then(response => response.data)
       .catch((error) => {});
   }
 
@@ -53,7 +53,7 @@ export default class YoutubeAPI {
     };
 
     return Axios.get<models.YoutubeSearchListResponse>(this.searchBaseURL, { params })
-      .then((response) => response.data)
+      .then(response => response.data)
       .catch((error) => {});
   }
 }
