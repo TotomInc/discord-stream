@@ -9,11 +9,11 @@ import { Command } from '../models';
  * commands.
  */
 export function loadCommands() {
-  const files = fs.readdirSync(path.join(__dirname, '/commands'));
+  const files = fs.readdirSync(path.join(__dirname, '../commands'));
   const commands = new Collection<string, Command>();
 
   files.forEach((file) => {
-    const command = require(`./commands/${file}`) as Command;
+    const command = require(`../commands/${file}`) as Command;
 
     commands.set(command.name, command);
   });
