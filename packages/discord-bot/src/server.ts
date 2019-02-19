@@ -53,7 +53,7 @@ client.on('message', async (message) => {
  * When the bot is ready, setup the activity interval.
  */
 client.on('ready', () => {
-  const activity = `for ${client.guilds.keyArray().length} | ${config.bot.prefix} help`;
+  const activity = `for ${client.guilds.keyArray().length} guilds | ${config.bot.prefix} help`;
 
   client.user.setActivity(activity);
 });
