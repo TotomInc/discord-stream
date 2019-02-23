@@ -1,14 +1,11 @@
 import to from 'await-to-js';
 
 import { Command } from '../models';
-import { EmojiService } from '../services/emoji.service';
 import { client } from '../server';
 import { detectURLProvider, providersList } from '../utils/providers';
 import { isURL } from '../utils/url';
 import * as providers from '../providers';
 import * as player from '../player';
-
-const emojiService = new EmojiService(client);
 
 module.exports = {
   name: 'play',
@@ -18,12 +15,9 @@ module.exports = {
     const member = message.member;
 
     const query = args.join(' ');
-    const isValidURL = isURL(query);
 
     /** If the query is a search-query, it is a YouTube provider by default */
-    const provider = (!isValidURL)
-      ? 'youtube'
-      : detectURLProvider(query);
+    const provider = detectURLProvider(query) || 'youtube';
 
     /** If the bot doesn't have the `CONNECT` permission on this guild */
     if (!member.permissions.has('CONNECT')) {
@@ -50,9 +44,7 @@ module.exports = {
       return message.channel.send('The search query is too short, put at least 3 characters.');
     }
 
-    const emojiProvider = emojiService.get(provider);
-
-    message.channel.send(`${emojiProvider} searching on **${provider}**: \`${query}\``);
+    message.channel.send(`searching on **${provider}**: \`${query}\``);
 
     /** If the sender is in a voice-channel and the bot is not, join voice-channel */
     if (member.voiceChannelID && !client.voiceConnections.has(message.guild.id)) {

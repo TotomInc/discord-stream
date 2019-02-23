@@ -4,14 +4,15 @@ import _ from 'lodash';
 import { config } from './config/env';
 import { loadCommands } from './utils/load-commands';
 import * as prefixes from './prefixes';
-import logger, { logError } from './logger';
 import { Guild } from './models/api/guild.model';
 import { GuildService } from './services/guild.service';
+import { LoggerService } from './services/logger.service';
 
 export const client = new Discord.Client();
 export const commands = loadCommands();
 
 const guildService = new GuildService();
+const loggerService = new LoggerService();
 
 /**
  * On message handler logic.
@@ -42,8 +43,7 @@ client.on('message', async (message) => {
   try {
     commands.get(command)!.execute(message, args);
   } catch (error) {
-    logger.log('error', 'Unable to execute a command');
-    logError(error);
+    loggerService.log.error(new Error(`Unable to execute a command: ${command}`));
 
     message.reply('There was an error while trying to execute this command, please try again later.');
   }

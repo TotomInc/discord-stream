@@ -1,14 +1,20 @@
 import Axios, { AxiosError } from 'axios';
 
 import * as models from '../../models';
-import logger, { logError } from '../../logger';
 import { config } from '../../config/env';
+import { LoggerService } from '../../services/logger.service';
 
 export default class SoundcloudAPI {
+  private loggerService: LoggerService;
+
   private resolveBaseURL = 'http://api.soundcloud.com/resolve.json';
   private searchTrackURL = 'http://api.soundcloud.com/tracks';
 
   private clientID = config.tokens.soundcloud;
+
+  constructor() {
+    this.loggerService = new LoggerService();
+  }
 
   /**
    * The resolve resource allows you to lookup and access API resources when
@@ -24,10 +30,7 @@ export default class SoundcloudAPI {
 
     return Axios.get<models.SoundcloudResponse>(this.resolveBaseURL, { params })
       .then(response => response.data)
-      .catch((error: AxiosError) => {
-        logger.log('error', `soundcloud-api can\'t resolve an url: ${url}`);
-        logError(error);
-      });
+      .catch((error: AxiosError) => this.loggerService.log.error(error, 'unable to resolve a SoundCloud URL: %s', url));
   }
 
   /**
@@ -43,9 +46,6 @@ export default class SoundcloudAPI {
 
     return Axios.get<models.SoundcloudTrack[]>(this.searchTrackURL, { params })
       .then(response => response.data)
-      .catch((error: AxiosError) => {
-        logger.log('error', `soundcloud-api can\'t search track with query: ${query}`);
-        logError(error);
-      });
+      .catch((error: AxiosError) => this.loggerService.log.error(error, 'unable to search tracks on SoundCloud query: %s', query));
   }
 }

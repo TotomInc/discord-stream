@@ -1,11 +1,16 @@
 import { Guild, GuildPrefix } from '../models/api/guild.model';
 import { config } from '../config/env';
 import { HTTPService } from './http.service';
+import { LoggerService } from './logger.service';
 
 export class GuildService {
+  private loggerService: LoggerService;
+
   public http: HTTPService;
 
   constructor() {
+    this.loggerService = new LoggerService();
+
     this.http = new HTTPService({
       baseURL: `${config.apiURI}/api`,
       headers: {

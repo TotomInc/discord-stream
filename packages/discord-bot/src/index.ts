@@ -21,25 +21,26 @@ import { AuthService } from './services/auth.service';
  */
 (async () => {
   const authService = new AuthService();
+
   const [authErr] = await to(authService.authenticate());
   const jwt = process.env['AUTH_TOKEN'];
 
   if (authErr || !jwt) {
-    throw new Error('Unable to generate a JWT.');
+    throw new Error('unable to authenticate on the API');
   }
 
   const prefixes = await import('./prefixes');
   const [prefixesErr] = await to(prefixes.load());
 
   if (prefixesErr) {
-    throw new Error('Unable to load guild prefixes.');
+    throw new Error('unable to load guild prefixes from the API');
   }
 
   const { client } = await import('./server');
   const [loginErr] = await to(client.login(config.tokens.discord));
 
   if (loginErr) {
-    throw new Error('Unable to login to Discord servers.');
+    throw new Error('unable to login the bot user on Discord server');
   }
 
   // Make sure to generate a new JWT every day so it won't expire

@@ -4,12 +4,13 @@ import Discord from 'discord.js';
 import YTDL from 'ytdl-core';
 import to from 'await-to-js';
 
-import { isURL } from '../../utils/url';
 import * as models from '../../models';
 import * as YoutubeGuard from './youtube.guard';
+import { isURL } from '../../utils/url';
+import { LoggerService } from '../../services/logger.service';
 import YoutubeAPI from './youtube.api';
-import logger, { logError } from '../../logger';
 
+const loggerService = new LoggerService();
 const api = new YoutubeAPI();
 
 /**
@@ -29,29 +30,20 @@ export async function fetchHandler(query: string, message: Discord.Message): Pro
     if (isVideo && !isPlaylist) {
       const [err, videoMetadata] = await to(api.getVideo(query));
 
-      if (err || !videoMetadata) {
-        logger.log('error', 'youtube-handler can\'t fetch a video metadata from the fetchHandler');
-        logError(err);
-      } else {
+      if (!err && videoMetadata) {
         tracks.push(mapVideoTrack(videoMetadata, message));
       }
     } else if (isPlaylist) {
       const playlistID = getPlaylistID(query)!;
       const [err, playlistMetadata] = await to(api.getPlaylist(playlistID));
 
-      if (err || !playlistMetadata) {
-        logger.log('error', 'youtube-handler can\'t fetch playlist metadata from the fetchHandler');
-        logError(err);
-      } else {
+      if (!err && playlistMetadata) {
         const playlistVideoIDs = playlistMetadata.items.map(item => item.snippet.resourceId.videoId);
 
         for (const videoID of playlistVideoIDs) {
           const [videoErr, videoMetadata] = await to(api.getVideo(buildURLFromID(videoID)));
 
-          if (videoErr || !videoMetadata) {
-            logger.log('err', 'youtube-handler can\'t fetch a video metadata from a playlist in the fetchHandler');
-            logError(err);
-          } else {
+          if (!videoErr && videoMetadata) {
             tracks.push(mapVideoTrack(videoMetadata, message));
           }
         }
@@ -60,22 +52,13 @@ export async function fetchHandler(query: string, message: Discord.Message): Pro
   } else {
     const [err, videoSearchResults] = await to(api.searchVideo(query));
 
-    if (err || !videoSearchResults) {
-      logger.log('error', `youtube-handler can\'t fetch videos from a search query: ${query}`);
-      logError(err);
-    } else if (videoSearchResults) {
+    if (!err && videoSearchResults) {
       const firstVideosResults = videoSearchResults.items.slice(0, 3);
 
       for (const video of firstVideosResults) {
         const [videoErr, videoMetadata] = await to(YTDL.getBasicInfo(video.id.videoId));
 
-        if (videoErr || !videoMetadata) {
-          logger.log(
-            'error',
-            'youtube-handler can\'t fetch a video metadata from a list of search videos response',
-          );
-          logError(err);
-        } else {
+        if (!videoErr && videoMetadata) {
           tracks.push(mapVideoTrack(videoMetadata, message));
         }
       }
@@ -95,10 +78,7 @@ export function getReadableStream(track: models.Track): Readable {
     filter: 'audioonly',
     highWaterMark: 1 << 25,
   })
-    .on('error', (err) => {
-      logger.log('error', 'youtube-handler YTDL error from getReadableStream');
-      logError(err);
-    });
+    .on('error', err => loggerService.log.error(err, 'YouTube handler can\'t get readable stream'));
 }
 
 /**

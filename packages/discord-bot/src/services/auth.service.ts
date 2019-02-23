@@ -1,12 +1,14 @@
 import { AuthResponse } from '../models';
 import { config } from '../config/env';
 import { HTTPService } from './http.service';
+import { LoggerService } from './logger.service';
 
 /**
  * Basic authentication service which uses the HTTP service.
  */
 export class AuthService {
   private httpService: HTTPService;
+  private loggerService: LoggerService;
 
   constructor() {
     this.httpService = new HTTPService({
@@ -15,6 +17,8 @@ export class AuthService {
         'Content-Type': 'application/json',
       },
     });
+
+    this.loggerService = new LoggerService();
   }
 
   /**
@@ -34,7 +38,7 @@ export class AuthService {
 
         return response.data;
       })
-      .catch(err => err);
+      .catch(err => this.loggerService.log.error(err, 'unable to retrieve a JWT from the API'));
   }
 
   /**
@@ -45,5 +49,7 @@ export class AuthService {
    */
   private storeJWT(jwt: string) {
     process.env['AUTH_TOKEN'] = jwt;
+
+    this.loggerService.log.info('generated and stored a JWT from the API: %s', jwt);
   }
 }

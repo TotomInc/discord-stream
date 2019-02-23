@@ -1,12 +1,14 @@
 import { Collection, Message } from 'discord.js';
 
+import { Guild } from './models';
 import { config } from './config/env';
 import { GuildService } from './services/guild.service';
-import { Guild } from './models';
+import { LoggerService } from './services/logger.service';
 
 export const prefixes = new Collection<string, string>();
 
 const guildService = new GuildService();
+const loggerService = new LoggerService();
 
 const unauthorizedPrefixes = [config.bot.prefix, '$note'];
 const unauthorizedCharacters = ['%'];
@@ -27,7 +29,11 @@ export function load(): Promise<Collection<string, string>> {
 
         resolve(prefixes);
       })
-      .catch(err => reject(err));
+      .catch((err) => {
+        loggerService.log.error(err, 'unable to load prefixes');
+
+        reject(err);
+      });
   });
 }
 
@@ -52,7 +58,11 @@ export function set(message: Message, prefix: string): Promise<Guild> {
 
         resolve(guild);
       })
-      .catch(err => reject(err));
+      .catch((err) => {
+        loggerService.log.error(err, 'unable to set prefix: %s', prefix);
+
+        reject(err);
+      });
   });
 }
 
@@ -72,7 +82,11 @@ export function remove(message: Message): Promise<Guild> {
 
         resolve(guild);
       })
-      .catch(err => reject(err));
+      .catch((err) => {
+        loggerService.log.error(err, 'unable to remove prefix');
+
+        reject(err);
+      });
   });
 }
 

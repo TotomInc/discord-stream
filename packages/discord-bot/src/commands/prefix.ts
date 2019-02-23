@@ -1,9 +1,10 @@
 import * as prefixes from '../prefixes';
 import { config } from '../config/env';
-import { logError } from '../logger';
 import { Command } from '../models';
+import { LoggerService } from '../services/logger.service';
 
 const prefix = config.bot.prefix;
+const loggerService = new LoggerService();
 
 module.exports = {
   name: 'prefix',
@@ -43,7 +44,7 @@ module.exports = {
       return prefixes.remove(message)
         .then(() => message.reply(`my custom prefix on this server have been deleted, you can still call me with the prefix \`${prefix}\`.`))
         .catch((err) => {
-          logError(err);
+          loggerService.log.error(err);
 
           return message.reply('I am unable to delete the prefix on this server.');
         });
@@ -82,7 +83,7 @@ module.exports = {
     prefixes.set(message, newPrefix)
       .then(() => message.reply(`the custom prefix have been successfully changed to \`${newPrefix}\`, be sure to notify your guild members of this change!`))
       .catch((err) => {
-        logError(err);
+        loggerService.log.error(err);
 
         return message.reply('I am unable to change your prefix, please try again later.');
       });

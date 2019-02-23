@@ -1,13 +1,14 @@
 import Discord from 'discord.js';
 import to from 'await-to-js';
 
-import logger, { logError } from '../../logger';
-import { config } from '../../config/env';
-import { isURL } from '../../utils/url';
 import * as models from '../../models';
 import * as SoundcloudGuard from './soundcloud.guard';
+import { config } from '../../config/env';
+import { isURL } from '../../utils/url';
+import { LoggerService } from '../../services/logger.service';
 import SoundcloudAPI from './soundcloud.api';
 
+const loggerService = new LoggerService();
 const api = new SoundcloudAPI();
 
 /**
@@ -24,12 +25,9 @@ export async function fetchHandler(query: string, message: Discord.Message): Pro
   if (isValidURL) {
     const [err, resource] = await to(api.resolveURL(query));
 
-    if (err || !resource) {
-      logger.log('error', 'soundcloud-handler can\'t fetch the resource from the fetchHandler using an URL');
-      logError(err);
-    } else if (resource && SoundcloudGuard.isTrack(resource)) {
+    if (!err && resource && SoundcloudGuard.isTrack(resource)) {
       tracks.push(mapSoundcloudTrack(resource, message));
-    } else if (resource && SoundcloudGuard.isPlaylist(resource)) {
+    } else if (!err && resource && SoundcloudGuard.isPlaylist(resource)) {
       resource.tracks
         .map(track => mapSoundcloudTrack(track, message))
         .forEach(track => tracks.push(track));
@@ -37,12 +35,8 @@ export async function fetchHandler(query: string, message: Discord.Message): Pro
   } else {
     const [err, trackSearchResults] = await to(api.searchTrack(query));
 
-    if (err || !trackSearchResults) {
-      logger.log('error', 'soundcloud-handler can\'t fetch search response from the fetchHandler using a search query');
-      logError(err);
-    } else if (trackSearchResults) {
-      trackSearchResults
-        .slice(0, 3)
+    if (!err && trackSearchResults) {
+      trackSearchResults.slice(0, 3)
         .map(track => mapSoundcloudTrack(track, message))
         .forEach(track => tracks.push(track));
     }
