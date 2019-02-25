@@ -45,22 +45,26 @@ export function load(): Promise<Collection<string, string>> {
  * @param message Discord message
  * @param prefix new prefix for the guild
  */
-export function set(message: Message, prefix: string): Promise<Guild> {
+export function set(message: Message, prefix: string): Promise<Guild | void> {
   const data = {
     customPrefix: encodeURIComponent(prefix),
   };
 
   return new Promise((resolve, reject) => {
     guildService.updatePrefix(message.guild.id, data)
-      .then(response => response.data)
-      .then((guild) => {
-        prefixes.set(message.guild.id, prefix);
+      .then((response) => {
+        if (response && response.data) {
+          prefixes.set(message.guild.id, prefix);
+          resolve(response.data);
+        } else {
+          const err = new Error('unable to update prefix, no valid response received from API');
 
-        resolve(guild);
+          loggerService.log.error(err, 'prefix: %s for guild id: %s', prefix, message.guild.id);
+          reject(err);
+        }
       })
       .catch((err) => {
         loggerService.log.error(err, 'unable to set prefix: %s', prefix);
-
         reject(err);
       });
   });
@@ -79,12 +83,10 @@ export function remove(message: Message): Promise<Guild> {
       .then(response => response.data)
       .then((guild) => {
         prefixes.delete(message.guild.id);
-
         resolve(guild);
       })
       .catch((err) => {
         loggerService.log.error(err, 'unable to remove prefix');
-
         reject(err);
       });
   });

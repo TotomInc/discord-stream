@@ -60,7 +60,7 @@ export class GuildService {
    * @param guild guild data
    */
   public update(guild: Guild) {
-    return this.http.put<Guild>(`guilds/${guild.guildID}`, guild) ;
+    return this.http.put<Guild>(`guilds/${guild.guildID}`, guild);
   }
 
   /**
@@ -70,7 +70,9 @@ export class GuildService {
    * @param data custom-prefix (not guild object)
    */
   public updatePrefix(guildID: string, data: { customPrefix: string }) {
-    return this.http.put<Guild>(`guilds/${guildID}/prefix`, data);
+    return this.http.put<Guild>(`guilds/${guildID}/prefix`, data)
+      .then(response => response)
+      .catch(err => this.loggerService.log.error(err, 'unable to update prefix: %s for guild id: %s', data, guildID));
   }
 
   /**

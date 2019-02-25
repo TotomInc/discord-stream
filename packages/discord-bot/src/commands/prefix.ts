@@ -15,7 +15,7 @@ module.exports = {
 
     /**
      * If a custom prefix have already been setup and someone else than the
-     * guild owner tries to change it.
+     * guild owner tries to change it, we show the custom prefix.
      */
     if (customPrefix && message.member.id !== message.guild.ownerID) {
       return message.reply(`the guild owner have already setup a custom prefix for your server which is \`${customPrefix}\`.`);
