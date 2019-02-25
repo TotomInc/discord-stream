@@ -16,8 +16,8 @@ import { AuthService } from './services/auth.service';
  * 3. Login the Discord client.
  *
  * We need to use dynamic imports because services used in those imports are
- * using the `HTTPService` (which requires the `Authorized` header with a valid
- * JWT) which depends on the `AuthService`.
+ * using the `HTTPService` (which requires the `Authorization` header with a
+ * valid JWT) which depends on the `AuthService`.
  */
 (async () => {
   const authService = new AuthService();

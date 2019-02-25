@@ -43,9 +43,8 @@ client.on('message', async (message) => {
   try {
     commands.get(command)!.execute(message, args);
   } catch (error) {
-    loggerService.log.error(new Error(`Unable to execute a command: ${command}`));
-
     message.reply('There was an error while trying to execute this command, please try again later.');
+    loggerService.log.error(new Error(`Unable to execute a command: ${command}`));
   }
 });
 
@@ -56,6 +55,7 @@ client.on('ready', () => {
   const activity = `for ${client.guilds.keyArray().length} guilds | ${config.bot.prefix} help`;
 
   client.user.setActivity(activity);
+  loggerService.log.info('discord client is ready');
 });
 
 /**
@@ -70,12 +70,16 @@ client.on('guildCreate', (guild) => {
     iconURL: guild.iconURL || undefined,
   };
 
-  guildService.create(data);
+  guildService.create(data)
+  .then(response => loggerService.log.info('created a guild: %s', response.data.guildID))
+  .catch(err => loggerService.log.error(err, 'unable to join create a guild: %s', guild.id));
 });
 
 /**
  * When the bot leave a guild, we delete the guild from the db.
  */
 client.on('guildDelete', (guild) => {
-  guildService.delete(guild.id);
+  guildService.delete(guild.id)
+    .then(response => loggerService.log.info('deleted a guild: %s', response.data.guildID))
+    .catch(err => loggerService.log.error(err, 'unable to delete a guild: %s', guild.id));
 });
