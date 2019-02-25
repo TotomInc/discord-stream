@@ -1,31 +1,30 @@
-import dotenv from 'dotenv';
 import Discord from 'discord.js';
 import _ from 'lodash';
 
-import * as utils from './utils';
-import { prefixesCollection } from './prefixes';
-import logger, { logError } from './logger';
-
-dotenv.config({
-  path: require('find-config')('.env'),
-});
+import { config } from './config/env';
+import { loadCommands } from './utils/load-commands';
+import * as prefixes from './prefixes';
+import { Guild } from './models/api/guild.model';
+import { GuildService } from './services/guild.service';
+import { LoggerService } from './services/logger.service';
 
 export const client = new Discord.Client();
-export const commands = utils.loadCommands();
-export const prefix = process.env['PREFIX'] as string;
+export const commands = loadCommands();
 
-let activityInterval: NodeJS.Timeout;
+const guildService = new GuildService();
+const loggerService = new LoggerService();
 
+/**
+ * On message handler logic.
+ */
 client.on('message', async (message) => {
   const text = message.content;
-  const hasCustomPrefix = prefixesCollection.has(message.guild.id);
-  const customPrefix = (hasCustomPrefix)
-    ? prefixesCollection.get(message.guild.id)
-    : undefined;
+  const hasCustomPrefix = prefixes.has(message);
+  const customPrefix = prefixes.get(message);
 
   if (
-    (!hasCustomPrefix && !text.startsWith(prefix))
-    || (hasCustomPrefix && !text.startsWith(prefix) && !text.startsWith(customPrefix!))
+    (!hasCustomPrefix && !text.startsWith(config.bot.prefix))
+    || (hasCustomPrefix && !text.startsWith(config.bot.prefix) && !text.startsWith(customPrefix!))
     || message.author.bot
   ) {
     return;
@@ -33,7 +32,7 @@ client.on('message', async (message) => {
 
   const args = (text.startsWith(customPrefix!))
     ? text.trim().slice(customPrefix!.length).trim().split(/ +/)
-    : text.trim().slice(prefix.length).trim().split(/ +/);
+    : text.trim().slice(config.bot.prefix.length).trim().split(/ +/);
 
   const command = args.shift()!.toLowerCase();
 
@@ -44,40 +43,43 @@ client.on('message', async (message) => {
   try {
     commands.get(command)!.execute(message, args);
   } catch (error) {
-    logger.log('error', 'Unable to execute a command');
-    logError(error);
     message.reply('There was an error while trying to execute this command, please try again later.');
+    loggerService.log.error(new Error(`Unable to execute a command: ${command}`));
   }
 });
 
+/**
+ * When the bot is ready, setup the activity interval.
+ */
 client.on('ready', () => {
-  activityInterval = setInterval(() => _setActivity(), 300000);
+  const activity = `for ${client.guilds.keyArray().length} guilds | ${config.bot.prefix} help`;
+
+  client.user.setActivity(activity);
+  loggerService.log.info('discord client is ready');
 });
 
 /**
- * Update the bot status message by picking a random message from the list.
+ * When the bot joins a guild, we store this new guild into the db.
  */
-function _setActivity() {
-  const messages = [
-    `for ${client.guilds.array().length} guilds | ${prefix} help`,
-    `for ${_getAmountUsers()} users | ${prefix} help`,
-  ];
-  const message = _.sample(messages);
+client.on('guildCreate', (guild) => {
+  const data: Guild = {
+    guildID: guild.id,
+    name: guild.name,
+    ownerID: guild.ownerID,
+    region: guild.region,
+    iconURL: guild.iconURL || undefined,
+  };
 
-  if (message) {
-    client.user.setActivity(message);
-  }
-}
+  guildService.create(data)
+  .then(response => loggerService.log.info('created a guild: %s', response.data.guildID))
+  .catch(err => loggerService.log.error(err, 'unable to join create a guild: %s', guild.id));
+});
 
 /**
- * Get the total amount of users by looping on each guild that uses the bot.
+ * When the bot leave a guild, we delete the guild from the db.
  */
-function _getAmountUsers(): number {
-  let users = 0;
-
-  client.guilds.forEach((guild) => {
-    users += guild.memberCount;
-  });
-
-  return users;
-}
+client.on('guildDelete', (guild) => {
+  guildService.delete(guild.id)
+    .then(response => loggerService.log.info('deleted a guild: %s', response.data.guildID))
+    .catch(err => loggerService.log.error(err, 'unable to delete a guild: %s', guild.id));
+});

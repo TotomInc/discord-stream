@@ -1,40 +1,48 @@
 import dotenv from 'dotenv';
+import to from 'await-to-js';
 
 dotenv.config({
   path: require('find-config')('.env'),
 });
 
-import * as prefixes from './prefixes';
-import * as auth from './auth';
-import * as emojis from './emojis';
-import { client } from './server';
-import logger, { logError } from './logger';
-
-const token = process.env['DISCORD_TOKEN'];
+import { config } from './config/env';
+import { AuthService } from './services/auth.service';
 
 /**
- * 1. Authenticate the bot on the rest-api server.
- * 2. Fetch and load all prefixes from the rest-api.
- * 3. Log the Discord client.
+ * Bootstrap the bot:
+ *
+ * 1. Login to the API and generate a JWT.
+ * 2. Load guild prefixes from the API.
+ * 3. Login the Discord client.
+ *
+ * We need to use dynamic imports because services used in those imports are
+ * using the `HTTPService` (which requires the `Authorization` header with a
+ * valid JWT) which depends on the `AuthService`.
  */
-auth.authenticate()
-  .then((authResponse) => {
-    if (!authResponse || !authResponse.token) {
-      throw new Error('Unable to get a signed JWT from the auth-server');
-    }
+(async () => {
+  const authService = new AuthService();
 
-    return prefixes.loadPrefixes();
-  })
-  .then(() => client.login(token))
-  .then(() => emojis.loadEmojis(client))
-  .then(() => logger.log('info', 'successfully logged in'))
-  .catch((err: Error) => logError(err));
+  const [authErr] = await to(authService.authenticate());
+  const jwt = process.env['AUTH_TOKEN'];
 
-/**
- * When using nodemon, before restarting the app make sure to disconnect the
- * bot from all the voice channels.
- */
-process.once('SIGUSR2', async () => {
-  await client.voiceConnections.forEach((connection) => connection.disconnect());
-  process.kill(process.pid, 'SIGUSR2');
-});
+  if (authErr || !jwt) {
+    throw new Error('unable to authenticate on the API');
+  }
+
+  const prefixes = await import('./prefixes');
+  const [prefixesErr] = await to(prefixes.load());
+
+  if (prefixesErr) {
+    throw new Error('unable to load guild prefixes from the API');
+  }
+
+  const { client } = await import('./server');
+  const [loginErr] = await to(client.login(config.tokens.discord));
+
+  if (loginErr) {
+    throw new Error('unable to login the bot user on Discord server');
+  }
+
+  // Make sure to generate a new JWT every day so it won't expire
+  const authInterval = setInterval(() => authService.authenticate(), (1000 * 60 * 60 * 24));
+})();

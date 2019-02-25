@@ -1,39 +1,19 @@
-import dotenv from 'dotenv';
-import Express from 'express';
-import jwt from 'express-jwt';
+import mongoose = require('mongoose');
+import bluebird from 'bluebird';
 
-import * as utils from './utils';
+import { config } from './config/env';
+import { app } from './config/express';
 
-dotenv.config({
-  path: require('find-config')('.env'),
-});
-
-import { PrefixesRoutes } from './prefixes';
-import { AuthRoutes } from './auth';
-
-const port = (process.env['PORT'] as number | undefined) || 8080;
-const JWT_SECRET = process.env['JWT_SECRET'];
-
-export const app = Express();
-export const router = Express.Router();
-
-if (!JWT_SECRET) {
-  throw new Error('The JWT_SECRET environment variable must be set in the .env file');
-}
-
-const jwtOptions: jwt.Options = {
-  secret: JWT_SECRET,
+const mongooseConnectionOptions: mongoose.ConnectionOptions = {
+  useCreateIndex: true,
+  useNewUrlParser: true,
+  keepAlive: true,
 };
-const jwtPathsExclusion = ['/', '/api/auth'];
 
-app.use(jwt(jwtOptions).unless({ path: jwtPathsExclusion }));
-app.use(utils.unauthorizedNext);
+// Set mongoose to use bluebird as a promise plugin
+mongoose.Promise = bluebird;
 
-app.get('/', (req, res) => res.status(404).end());
+mongoose.connect(config.mongoURI, mongooseConnectionOptions)
+  .then(() => console.log(`> Mongoose connected to: ${config.mongoURI}`));
 
-app.use('/api/prefixes', PrefixesRoutes);
-app.use('/api/auth', AuthRoutes);
-
-app.listen(port);
-
-console.log(`> REST API server up at :${port}`);
+app.listen(config.apiPort, () => console.log(`> Server started on :${config.apiPort}`));

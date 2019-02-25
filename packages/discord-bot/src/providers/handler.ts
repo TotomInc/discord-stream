@@ -18,10 +18,10 @@ export async function handleProvider(
   query: string,
   message: Discord.Message,
 ): Promise<models.Track[]> {
-  const [err, tracks] = await to(_fetchMetadata(provider, query, message));
+  const [err, tracks] = await to(fetchMetadata(provider, query, message));
 
   if (err || !tracks || tracks.length <= 0) {
-    message.channel.send(`Your track haven't been queued because the metadata could not be fetched.`);
+    message.channel.send('Your track haven\'t been queued because the metadata could not be fetched.');
   }
 
   return tracks || [];
@@ -58,7 +58,7 @@ export function handleStreamProvider(provider: models.providers, track: models.T
  * @param query the search query or an url
  * @param message the discord message that initiated this
  */
-async function _fetchMetadata(
+async function fetchMetadata(
   provider: models.providers,
   query: string,
   message: Discord.Message,

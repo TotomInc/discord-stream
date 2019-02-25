@@ -1,8 +1,9 @@
 import Discord from 'discord.js';
 
 import { Command } from '../models';
+import { config } from '../config/env';
 
-const ownerID = process.env['OWNER_ID'];
+const ownerID = config.bot.ownerUserID.toString();
 
 module.exports = {
   name: 'alerter',
@@ -15,7 +16,7 @@ module.exports = {
 
     if (senderID === ownerID) {
       client.guilds.forEach((guild) => {
-        const textChannel = guild.channels.find((channel) => channel.type === 'text') as Discord.TextChannel;
+        const textChannel = guild.channels.find(channel => channel.type === 'text') as Discord.TextChannel;
 
         if (textChannel && textChannel.send && typeof textChannel.send === 'function') {
           textChannel.send(messageToSend);

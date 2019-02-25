@@ -1,8 +1,8 @@
 import _ from 'lodash';
 
+import { generateRichEmbed } from '../utils/rich-embed';
 import { Command } from '../models';
 import * as player from '../player';
-import * as utils from '../utils';
 
 module.exports = {
   name: 'leavecleanup',
@@ -21,13 +21,13 @@ module.exports = {
     }
 
     const voiceChannelMembers = voiceConnection.channel.members.array();
-    const filteredQueue = queue.filter((track) =>
-      voiceChannelMembers.find((member) => member.id === track.initiator.member.id)
+    const filteredQueue = queue.filter(track =>
+      voiceChannelMembers.find(member => member.id === track.initiator.member.id),
     );
 
     player.replaceQueue(filteredQueue, message);
 
-    const richEmbed = utils.generateRichEmbed('Queue cleaned', message.client)
+    const richEmbed = generateRichEmbed('Queue cleaned', message.client)
       .setDescription('Removed tracks queued by absent users.');
 
     message.channel.send(richEmbed);

@@ -1,8 +1,8 @@
 import _ from 'lodash';
 
 import { Command } from '../models';
+import { generateRichEmbed } from '../utils/rich-embed';
 import * as player from '../player';
-import * as utils from '../utils';
 
 module.exports = {
   name: 'removedupes',
@@ -14,11 +14,11 @@ module.exports = {
       return message.reply('there are no queued tracks.');
     }
 
-    const filteredTracks = _.uniqBy(queue, (track) => track.streamURL);
+    const filteredTracks = _.uniqBy(queue, track => track.streamURL);
 
     player.replaceQueue(filteredTracks, message);
 
-    const richEmbed = utils.generateRichEmbed('Queue cleaned', message.client)
+    const richEmbed = generateRichEmbed('Queue cleaned', message.client)
       .setDescription('Duplicates have been removed from the queue.');
 
     message.channel.send(richEmbed);

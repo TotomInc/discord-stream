@@ -2,12 +2,20 @@ import Axios from 'axios';
 import YTDL from 'ytdl-core';
 
 import * as models from '../../models';
+import { config } from '../../config/env';
+import { LoggerService } from '../../services/logger.service';
 
 export default class YoutubeAPI {
+  private loggerService: LoggerService;
+
   private searchBaseURL = 'https://www.googleapis.com/youtube/v3/search';
   private playlistBaseURL = 'https://www.googleapis.com/youtube/v3/playlistItems';
 
-  private key = process.env['YOUTUBE_TOKEN'];
+  private key = config.tokens.youtube;
+
+  constructor() {
+    this.loggerService = new LoggerService();
+  }
 
   /**
    * Get basic metadata from a YouTube video, uses YTDL.
@@ -15,7 +23,8 @@ export default class YoutubeAPI {
    * @param url the YouTube video URL
    */
   public getVideo(url: string) {
-    return YTDL.getBasicInfo(url);
+    return YTDL.getBasicInfo(url)
+      .catch(err => this.loggerService.log.error(err, 'unable to get YouTube video info: %s', url));
   }
 
   /**
@@ -33,8 +42,8 @@ export default class YoutubeAPI {
     };
 
     return Axios.get<models.YoutubePlaylistItems>(this.playlistBaseURL, { params })
-      .then((response) => response.data)
-      .catch((error) => {});
+      .then(response => response.data)
+      .catch(err => this.loggerService.log.error(err, 'unable to get YouTube playlist videos: %s', playlistID));
   }
 
   /**
@@ -52,7 +61,7 @@ export default class YoutubeAPI {
     };
 
     return Axios.get<models.YoutubeSearchListResponse>(this.searchBaseURL, { params })
-      .then((response) => response.data)
-      .catch((error) => {});
+      .then(response => response.data)
+      .catch(err => this.loggerService.log.error(err, 'unable to search a video on YouTube: %s', query));
   }
 }
