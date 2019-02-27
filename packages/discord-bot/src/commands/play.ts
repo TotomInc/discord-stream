@@ -59,8 +59,14 @@ module.exports = {
     if (message.member.voiceChannelID && client.voiceConnections.has(message.guild.id)) {
       const [fetchTracksErr, tracks] = await to(providers.handleProvider(provider, query, message));
       const isValidURL = isURL(query);
+      const hasErrorAndNoTracks = (fetchTracksErr && (!tracks || tracks.length <= 0));
 
-      if (fetchTracksErr || !tracks || tracks.length <= 0) {
+      /**
+       * Only leave when:
+       *  - there is an error and no tracks are in the queue
+       *  - there are no tracks in the queue
+       */
+      if (hasErrorAndNoTracks || !tracks || tracks.length <= 0) {
         return client.voiceConnections.get(message.guild.id)!.disconnect();
       }
 
