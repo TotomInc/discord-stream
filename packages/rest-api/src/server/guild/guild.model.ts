@@ -1,4 +1,6 @@
-import { Typegoose, prop, staticMethod, ModelType } from 'typegoose';
+import { Typegoose, prop, staticMethod, ModelType, Ref } from 'typegoose';
+
+import { Queue } from '../queue/queue.model';
 
 export class Guild extends Typegoose {
   @prop({ unique: true })
@@ -19,9 +21,13 @@ export class Guild extends Typegoose {
   @prop()
   customPrefix?: string;
 
+  @prop({ ref: Queue })
+  queue?: Ref<Queue>;
+
   @staticMethod
   static getByGuildID(this: ModelType<Guild> & typeof Guild, guildID: string) {
-    return this.findOne({ guildID });
+    return this.findOne({ guildID })
+      .populate('queue');
   }
 }
 

@@ -4,6 +4,7 @@ import authRoutes from './server/auth/auth.route';
 import loginRoutes from './server/login/login.route';
 import usersRoutes from './server/user/user.route';
 import guildsRoutes from './server/guild/guild.route';
+import queuesRoutes from './server/queue/queue.route';
 
 const router = express.Router();
 
@@ -21,5 +22,8 @@ router.use('/users', usersRoutes);
 
 // Guilds endpoint
 router.use('/guilds', guildsRoutes);
+
+// Queues endpoint
+router.use('/queues', queuesRoutes);
 
 export default router;
