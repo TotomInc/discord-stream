@@ -55,7 +55,7 @@ export function create(req: Request, res: Response, next: NextFunction) {
  * @param res Express response
  */
 export function get(req: Request, res: Response) {
-  if (req.guild && req.guild.toJSON) {
+  if (req.guild && req.guild._id) {
     return res.json(req.guild.toJSON());
   }
 
@@ -113,7 +113,7 @@ export function getAllPrefixes(req: Request, res: Response, next: NextFunction) 
  * @param next Express next-function
  */
 export function update(req: Request, res: Response, next: NextFunction) {
-  if (req.guild && req.guild.toJSON) {
+  if (req.guild && req.guild._id) {
     const guild = req.guild;
 
     guild.guildID = req.body['guildID'] as string;
@@ -139,7 +139,7 @@ export function update(req: Request, res: Response, next: NextFunction) {
  * @param next Express next-function
  */
 export function remove(req: Request, res: Response, next: NextFunction) {
-  if (req.guild && req.guild.toJSON) {
+  if (req.guild && req.guild._id) {
     return req.guild.remove()
       .then(deletedGuild => res.json(deletedGuild.toJSON()))
       .catch(err => next(err));
@@ -156,7 +156,7 @@ export function remove(req: Request, res: Response, next: NextFunction) {
  * @param next Express next-function
  */
 export function updatePrefix(req: Request, res: Response, next: NextFunction) {
-  if (req.guild && req.guild.toJSON) {
+  if (req.guild && req.guild._id) {
     const guild = req.guild;
 
     guild.customPrefix = req.body['customPrefix'] as string;
@@ -177,7 +177,7 @@ export function updatePrefix(req: Request, res: Response, next: NextFunction) {
  * @param next Express next-function
  */
 export function removePrefix(req: Request, res: Response, next: NextFunction) {
-  if (req.guild && req.guild.toJSON) {
+  if (req.guild && req.guild._id) {
     const guild = req.guild;
 
     guild.customPrefix = undefined;
