@@ -5,7 +5,7 @@
   "author": "TotomInc <cazade.thomas@gmail.com>",
   "license": "MIT",
   "scripts": {
-    "dev": "DEBUG=streamer:* nodemon",
+    "dev": "nodemon | ./node_modules/.bin/bunyan",
     "build": "yarn build:clean && yarn build:compile",
     "build:clean": "rm -rf ./dist",
     "build:compile": "tsc -p ./tsconfig.json",
