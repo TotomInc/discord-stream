@@ -121,9 +121,8 @@ export function update(req: Request, res: Response, next: NextFunction) {
  */
 export async function remove(req: Request, res: Response, next: NextFunction) {
   if (req.queue && req.queue._id) {
-    const guildID = req.body['guildID'] as string;
     const queue = req.queue;
-    const guild = await guildModel.getByGuildID(guildID);
+    const guild = await guildModel.getByGuildID(queue.guildID);
 
     if (!guild || !guild._id) {
       return next(new Error('Unable to find a guild, can\'t delete a queue of a non-existing guild'));
