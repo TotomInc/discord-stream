@@ -1,8 +1,11 @@
 import Discord from 'discord.js';
 
+import * as models from '../models';
 import { generateRichEmbed } from '../utils/rich-embed';
 import { secondsToHHMMSS } from '../utils/time';
-import * as models from '../models';
+import { QueueService } from '../services/queue.service';
+
+const queueService = new QueueService();
 
 /** Guild queues are stored and can be retrieved with a `guildID` */
 const queues: Discord.Collection<string, models.Track[]> = new Discord.Collection();
@@ -21,10 +24,12 @@ export function addTracks(tracks: models.Track[], message: Discord.Message): mod
 
   if (!queue) {
     queues.set(guildID, [...tracks]);
+    queueService.create(guildID, tracks);
   } else {
     const newQueue = [...queue, ...tracks];
 
     queues.set(guildID, newQueue);
+    queueService.update(guildID, newQueue);
   }
 
   if (tracks.length > 0) {
@@ -52,8 +57,8 @@ export function addTracks(tracks: models.Track[], message: Discord.Message): mod
 }
 
 /**
- * Remove the first track from the `guildQueue`.
- * Returns the `guildQueue`.
+ * Remove the first track from the `guildQueue`. Make sure to also update the
+ * queue status on the API. Returns the edited `guildQueue` or an empty array.
  *
  * @param message the discord message that initiated this
  */
@@ -64,9 +69,13 @@ export function removeFirstTrack(message: Discord.Message): models.Track[] {
   if (queue) {
     queue.shift();
 
-    (queue.length === 0)
-      ? queues.delete(guildID)
-      : queues.set(guildID, queue);
+    if (queue.length === 0) {
+      queues.delete(guildID);
+      queueService.delete(guildID);
+    } else {
+      queues.set(guildID, queue);
+      queueService.update(guildID, queue);
+    }
   }
 
   return queues.get(guildID) || [];
@@ -74,7 +83,8 @@ export function removeFirstTrack(message: Discord.Message): models.Track[] {
 
 /**
  * Similar to `Array#splice`, specify a range of tracks to remove from the
- * queue. Returns the new state of the `guildQueue`.
+ * queue. Make sure to also update the queue status on the API. Returns the
+ * edited `guildQueue`.
  *
  * @param startIndex the index to start for `Array#splice`
  * @param deleteCount the number of tracks to remove
@@ -91,13 +101,15 @@ export function removeTracks(
   if (queue) {
     queue.splice(startIndex, deleteCount);
     queues.set(guildID, queue);
+    queueService.update(guildID, queue);
   }
 
   return queues.get(guildID) || [];
 }
 
 /**
- * Delete a `guildQueue` if it exists for the current `guildID`.
+ * Delete a `guildQueue` locally and on the API (if it exists for the current
+ * `guildID`).
  *
  * @param message the discord message that initiated this
  */
@@ -107,6 +119,7 @@ export function removeQueue(message: Discord.Message): void {
 
   if (queueExists) {
     queues.delete(guildID);
+    queueService.delete(guildID);
   }
 }
 
@@ -123,7 +136,7 @@ export function getQueue(message: Discord.Message): models.Track[] {
 }
 
 /**
- * Replace an already existing queue and returns it.
+ * Replace an already existing queue (locally and on the API), then returns it.
  *
  * @param message the discord message that initiated this
  * @param newQueue the new queue to replace
@@ -134,6 +147,7 @@ export function replaceQueue(newQueue: models.Track[], message: Discord.Message)
 
   if (queueExists) {
     queues.set(guildID, newQueue);
+    queueService.update(guildID, newQueue);
   }
 
   return queues.get(guildID) || [];

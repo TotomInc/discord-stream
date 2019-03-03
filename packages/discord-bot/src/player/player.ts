@@ -151,6 +151,8 @@ function onTrackEnd(reason: string, message: Discord.Message): void {
   const guildVoiceConnection = message.client.voiceConnections.get(message.guild.id);
   const guildQueue = queue.removeFirstTrack(message);
 
+  // If more tracks in the queue, play the next one
+  // otherwise, leave voice-channel
   if (guildQueue.length > 0) {
     playTrack(guildQueue[0].initiator, guildQueue);
   } else if (guildVoiceConnection) {

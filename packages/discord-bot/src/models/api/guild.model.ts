@@ -1,3 +1,5 @@
+import { Queue } from './queue.model';
+
 export interface Guild {
   guildID: string;
   name: string;
@@ -5,6 +7,7 @@ export interface Guild {
   ownerID: string;
   region: string;
   customPrefix?: string;
+  queue?: Queue;
 }
 
 export interface GuildPrefix {
