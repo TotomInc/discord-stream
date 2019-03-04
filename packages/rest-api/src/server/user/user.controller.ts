@@ -55,7 +55,7 @@ export function get(req: Request, res: Response) {
     return res.json(req.user.toJSON());
   }
 
-  return res.json(httpStatus.NOT_FOUND);
+  return res.sendStatus(httpStatus.NOT_FOUND);
 }
 
 /**
@@ -93,5 +93,5 @@ export function remove(req: Request, res: Response, next: NextFunction) {
       .catch(err => next(err));
   }
 
-  return res.json(httpStatus.NOT_FOUND);
+  return res.sendStatus(httpStatus.NOT_FOUND);
 }
