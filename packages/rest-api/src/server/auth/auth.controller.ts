@@ -6,11 +6,8 @@ import { Request, Response, NextFunction } from 'express';
 import { config } from '../../config/env';
 import { APIError } from '../helpers/APIError';
 
-/**
- * Sign a JWT that expires after 7 days.
- */
 const jwtSignOptions: jwt.SignOptions = {
-  expiresIn: 604800,
+  expiresIn: '1d',
 };
 
 /**
