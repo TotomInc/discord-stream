@@ -59,7 +59,7 @@ app.use((req: Request, res: Response, next: NextFunction) => {
 });
 
 // Error handler, send stacktrace only during development
-app.use((err: any, req: Request, res: Response, next: NextFunction) => {
+app.use((err: APIError, req: Request, res: Response, next: NextFunction) => {
   res.status(err.status).json({
     // @ts-ignore
     message: err.isPublic ? err.message : httpStatus[err.status],

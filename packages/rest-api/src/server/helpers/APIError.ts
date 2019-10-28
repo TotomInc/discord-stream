@@ -1,5 +1,7 @@
 import httpStatus from 'http-status';
 
+import { config } from '../../config/env';
+
 class ExtendableError extends Error {
   public status: number;
   public isPublic: boolean;
@@ -18,12 +20,14 @@ class ExtendableError extends Error {
 
 /**
  * Represents an API error.
+ *
+ * Make the error public if we are not in a production environment.
  */
 export class APIError extends ExtendableError {
   constructor(
     message: string,
     status = httpStatus.INTERNAL_SERVER_ERROR,
-    isPublic = false,
+    isPublic = config.env !== 'production' ? true : false,
   ) {
     super(message, status, isPublic);
   }
