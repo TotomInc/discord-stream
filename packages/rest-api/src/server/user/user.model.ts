@@ -1,21 +1,28 @@
-import { Typegoose, prop, staticMethod, ModelType } from 'typegoose';
+import mongoose, { Schema } from 'mongoose';
 
-import { Favorite } from '../favorite/favorite.model';
+import { IUser } from '../../models/User';
 
-class User extends Typegoose {
-  @prop({ unique: true })
-  clientID!: string;
+export const UserSchema: Schema = new Schema({
+  clientID: {
+    type: Schema.Types.String,
+    required: true,
+    unique: true,
+  },
 
-  @prop()
-  username!: string;
+  username: {
+    type: Schema.Types.String,
+    required: true,
+  },
 
-  @prop({ default: [] })
-  favorites!: Favorite[];
+  hash: {
+    type: Schema.Types.String,
+    required: true,
+  },
 
-  @staticMethod
-  static getByClientID(this: ModelType<User> & typeof User, clientID: string) {
-    return this.findOne({ clientID });
-  }
-}
+  favorites: [{
+    type: Schema.Types.String,
+    ref: 'Favorite',
+  }],
+});
 
-export const userModel = new User().getModelForClass(User);
+export const UserModel = mongoose.model<IUser>('User', UserSchema);

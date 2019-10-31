@@ -7,20 +7,26 @@ import * as userValidators from './user.validators';
 
 const router = express.Router();
 
-// Attach the favorite-router
-router.use('/:userID/favorites', favoriteRoutes);
+// Load user into the request when the `userID` parameter is hit
+router.param('userID', userCtrl.load);
 
-// Endpoint used only to create a user
+// Endpoint used to get a list of all users or to create a user
 router.route('/')
+  .get(userCtrl.getAll)
   .post(validate(userValidators.create), userCtrl.create);
 
-// `userID` CRUD operations
+// CRUD operations for a specific user
 router.route('/:userID')
   .get(userCtrl.get)
   .put(validate(userValidators.update), userCtrl.update)
   .delete(userCtrl.remove);
 
-// Load user into the request when the `userID` parameter is hit
-router.param('userID', userCtrl.load);
+// Add a route to create massive amount of fake users when not in production
+if (process.env.NODE_ENV !== 'production') {
+  router.route('/fake').post(userCtrl.createFake);
+}
+
+// Attach the favorite-router
+router.use('/:userID/favorites', favoriteRoutes);
 
 export default router;
