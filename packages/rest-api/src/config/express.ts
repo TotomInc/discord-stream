@@ -7,7 +7,7 @@ import cors from 'cors';
 import httpStatus from 'http-status';
 
 import { config } from './env';
-import { APIError } from '../server/helpers/APIError';
+import { APIError } from '../helpers/APIError';
 import APIRoutes from '../index.route';
 
 export const app = express();

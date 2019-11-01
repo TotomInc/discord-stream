@@ -1,6 +1,6 @@
 import httpStatus from 'http-status';
 
-import { config } from '../../config/env';
+import { config } from '../config/env';
 
 class ExtendableError extends Error {
   public status: number;
