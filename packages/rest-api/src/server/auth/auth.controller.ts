@@ -4,7 +4,7 @@ import httpStatus from 'http-status';
 import { Request, Response, NextFunction } from 'express';
 
 import { config } from '../../config/env';
-import { APIError } from '../helpers/APIError';
+import { APIError } from '../../helpers/APIError';
 
 const jwtSignOptions: jwt.SignOptions = {
   expiresIn: '1d',
