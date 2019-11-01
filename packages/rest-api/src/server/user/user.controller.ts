@@ -6,9 +6,7 @@ import { UserModel } from './user.model';
 import { createFakeUsers } from './user.faker';
 
 /**
- * Call this function on `router.param`, so when we hit a specific query param,
- * it will *preload* the user model instance and set it into the Express
- * `request` object. We can access this user-instance by doing `req.user`.
+ * Preload the user into the `Request` when we hit a `clientID` param.
  *
  * @param req Express request
  * @param res Express response
