@@ -11,6 +11,8 @@ export const QueueSchema: Schema = new Schema({
   },
 
   tracks: [TrackSchema],
+}, {
+  versionKey: false,
 });
 
 export const QueueModel = mongoose.model<IQueue>('Queue', QueueSchema);

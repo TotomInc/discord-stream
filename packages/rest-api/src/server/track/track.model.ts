@@ -40,4 +40,6 @@ export const TrackSchema: Schema = new Schema({
     type: Schema.Types.String,
     required: true,
   },
+}, {
+  versionKey: false,
 });

@@ -21,6 +21,8 @@ export const UserSchema: Schema = new Schema({
   },
 
   favorites: [TrackSchema],
+}, {
+  versionKey: false,
 });
 
 export const UserModel = mongoose.model<IUser>('User', UserSchema);

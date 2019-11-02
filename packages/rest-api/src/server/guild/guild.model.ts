@@ -40,6 +40,8 @@ export const GuildSchema: Schema = new Schema({
     ref: 'Queue',
     required: true,
   },
+}, {
+  versionKey: false,
 });
 
 export const GuildModel = mongoose.model<IGuild>('Guild', GuildSchema);
