@@ -1,14 +1,11 @@
 import { Document } from 'mongoose';
 
-import { Favorite, IFavorite } from './Favorite';
-
 /**
  * Legacy Typegoose model to remove.
  */
 export interface User {
   clientID: string;
   username: string;
-  favorites: Favorite[];
 }
 
 /**
@@ -18,7 +15,6 @@ export interface IUser extends Document {
   clientID: string;
   username: string;
   hash: string;
-  favorites: IFavorite['_id'][];
 }
 
 export interface ICreatedUser {

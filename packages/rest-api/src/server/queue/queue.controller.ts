@@ -11,12 +11,10 @@ import { QueueModel } from './queue.model';
  * @param req Express request
  * @param res Express response
  * @param next Express next-function
- * @param id favorite-id
+ * @param id guild-id
  */
-export function load(req: Request, res: Response, next: NextFunction, id: string) {
-  QueueModel.findOne({
-    guildID: id,
-  })
+export function load(req: Request, res: Response, next: NextFunction, guildID: string) {
+  QueueModel.findOne({ guildID })
     .then((queue) => {
       if (queue && queue._id) {
         req.queue = queue;

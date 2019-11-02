@@ -1,7 +1,6 @@
 import express from 'express';
 import validate from 'express-validation';
 
-import favoriteRoutes from '../favorite/favorite.route';
 import * as userCtrl from './user.controller';
 import * as userValidators from './user.validators';
 
@@ -25,8 +24,5 @@ router.route('/:userID')
 if (process.env.NODE_ENV !== 'production') {
   router.route('/fake').post(userCtrl.createFake);
 }
-
-// Attach the favorite-router
-router.use('/:userID/favorites', favoriteRoutes);
 
 export default router;

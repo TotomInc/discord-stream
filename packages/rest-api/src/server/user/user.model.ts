@@ -18,11 +18,6 @@ export const UserSchema: Schema = new Schema({
     type: Schema.Types.String,
     required: true,
   },
-
-  favorites: [{
-    type: Schema.Types.String,
-    ref: 'Favorite',
-  }],
 });
 
 export const UserModel = mongoose.model<IUser>('User', UserSchema);
