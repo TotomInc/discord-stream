@@ -28,19 +28,14 @@ export function load(req: Request, res: Response, next: NextFunction, id: string
 }
 
 /**
- * Create a new user model with required params and save it to the db. Return
- * the newly created user.
+ * Create a new user.
  *
  * @param req Express request
  * @param res Express response
  * @param next Express next-function
  */
 export function create(req: Request, res: Response, next: NextFunction) {
-  const newUser: ICreatedUser = {
-    clientID: req.body['clientID'],
-    username: req.body['username'],
-    hash: req.body['hash'],
-  };
+  const newUser: ICreatedUser = req.body;
 
   new UserModel(newUser)
     .save()
@@ -117,6 +112,12 @@ export function update(req: Request, res: Response, next: NextFunction) {
 
     user.username = updatedUser.username;
     user.hash = updatedUser.hash;
+
+    if (updatedUser.favorites) {
+      // Make sure to empty the favorites array before pushing data to it
+      user.favorites.splice(0, user.favorites.length);
+      user.favorites.push(...updatedUser.favorites);
+    }
 
     return user.save()
       .then(savedUser => res.json(savedUser.toJSON()))
