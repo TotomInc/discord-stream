@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import httpStatus from 'http-status';
 
-import { Track } from '../../models/Track';
+import { ITrack } from '../../models/Track';
 import { IPaginationQueue } from '../../models/Queue';
 import { QueueModel } from './queue.model';
 
@@ -73,7 +73,7 @@ export function getAll(req: Request, res: Response, next: NextFunction) {
 export function update(req: Request, res: Response, next: NextFunction) {
   if (req.queue && req.queue._id) {
     const queue = req.queue;
-    const tracks = req.body['tracks'] as Track[];
+    const tracks = req.body['tracks'] as ITrack[];
 
     // Empty tracks array before adding tracks
     queue.tracks.splice(0, queue.tracks.length);
