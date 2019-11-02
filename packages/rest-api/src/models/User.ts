@@ -1,13 +1,6 @@
 import { Document } from 'mongoose';
-import { ITrack } from './Track';
 
-/**
- * Legacy Typegoose model to remove.
- */
-export interface User {
-  clientID: string;
-  username: string;
-}
+import { ITrack } from './Track';
 
 /**
  * Mongoose schema of a `User`.

@@ -1,21 +1,6 @@
 import { ObjectId } from 'bson';
 import { Document } from 'mongoose';
 
-import { Queue } from './Queue';
-
-/**
- * Legacy Typegoose model to remove.
- */
-export interface Guild {
-  guildID: string;
-  name: string;
-  iconURL?: string;
-  ownerID: string;
-  region: string;
-  customPrefix?: string;
-  queue?: Queue | ObjectId;
-}
-
 /**
  * Mongoose schema of a `Guild`.
  */

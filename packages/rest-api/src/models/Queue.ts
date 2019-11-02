@@ -1,31 +1,23 @@
 import { Document } from 'mongoose';
 
-import { Track } from './Track';
-
-/**
- * Legacy Typegoose model to remove.
- */
-export interface Queue {
-  guildID: string;
-  tracks?: Track[];
-}
+import { ITrack } from './Track';
 
 /**
  * Mongoose schema of a `Queue`.
  */
 export interface IQueue extends Document {
   guildID: string;
-  tracks: Track[];
+  tracks: ITrack[];
 }
 
 export interface ICreatedQueue {
-  guildID: string;
-  tracks: Track[];
+  guildID: IQueue['guildID'];
+  tracks: IQueue['tracks'];
 }
 
 export interface IUpdatedQueue {
-  guildID: string;
-  tracks: Track[];
+  guildID: IQueue['guildID'];
+  tracks: IQueue['tracks'];
 }
 
 export interface IPaginationQueue {
