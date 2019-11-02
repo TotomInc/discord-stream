@@ -6,6 +6,9 @@ import * as guildValidators from './guild.validators';
 
 const router = express.Router();
 
+// Load guild into the request when the `guildID` parameter is hit
+router.param('guildID', guildCtrl.load);
+
 // Endpoint used only to create a guild
 router.route('/')
   .get(guildCtrl.getAll)
@@ -26,7 +29,9 @@ router.route('/:guildID/prefix')
   .put(validate(guildValidators.updatePrefix), guildCtrl.updatePrefix)
   .delete(guildCtrl.removePrefix);
 
-// Load guild into the request when the `guildID` parameter is hit
-router.param('guildID', guildCtrl.load);
+// Add a route to create massive amount of fake users when not in production
+if (process.env.NODE_ENV !== 'production') {
+  router.route('/fake').post(guildCtrl.createFake);
+}
 
 export default router;

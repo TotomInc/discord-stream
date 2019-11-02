@@ -1,34 +1,45 @@
-import { Typegoose, prop, staticMethod, ModelType, Ref } from 'typegoose';
+import mongoose, { Schema } from 'mongoose';
 
-import { Queue } from '../queue/queue.model';
+import { IGuild } from '../../models/Guild';
 
-export class Guild extends Typegoose {
-  @prop({ unique: true })
-  guildID!: string;
+export const GuildSchema: Schema = new Schema({
+  guildID: {
+    type: Schema.Types.String,
+    required: true,
+    unique: true,
+  },
 
-  @prop({ required: true })
-  name!: string;
+  name: {
+    type: Schema.Types.String,
+    required: true,
+  },
 
-  @prop()
-  iconURL?: string;
+  iconURL: {
+    type: Schema.Types.String,
+    required: false,
+  },
 
-  @prop({ required: true })
-  ownerID!: string;
+  ownerID: {
+    type: Schema.Types.String,
+    required: true,
+  },
 
-  @prop({ required: true })
-  region!: string;
+  region: {
+    type: Schema.Types.String,
+    required: true,
+  },
 
-  @prop()
-  customPrefix?: string;
+  prefix: {
+    type: Schema.Types.String,
+    required: false,
+    default: '=note',
+  },
 
-  @prop({ ref: Queue })
-  queue?: Ref<Queue>;
+  queue: {
+    type: Schema.Types.ObjectId,
+    ref: 'Queue',
+    required: true,
+  },
+});
 
-  @staticMethod
-  static getByGuildID(this: ModelType<Guild> & typeof Guild, guildID: string) {
-    return this.findOne({ guildID })
-      .populate('queue');
-  }
-}
-
-export const guildModel = new Guild().getModelForClass(Guild);
+export const GuildModel = mongoose.model<IGuild>('Guild', GuildSchema);

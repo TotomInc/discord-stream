@@ -7,7 +7,8 @@ export const create = {
     iconURL: joi.string().uri().optional(),
     ownerID: joi.string().required(),
     region: joi.string().required(),
-    customPrefix: joi.string().optional(),
+    prefix: joi.string().optional(),
+    queue: joi.string().optional(),
   },
 };
 
@@ -18,12 +19,13 @@ export const update = {
     iconURL: joi.string().uri().optional(),
     ownerID: joi.string().required(),
     region: joi.string().required(),
-    customPrefix: joi.string().optional(),
+    prefix: joi.string().optional(),
+    queue: joi.string().optional(),
   },
 };
 
 export const updatePrefix = {
   body: {
-    customPrefix: joi.string().required(),
+    prefix: joi.string().required(),
   },
 };

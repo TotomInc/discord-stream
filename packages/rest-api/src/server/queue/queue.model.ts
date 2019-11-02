@@ -1,24 +1,57 @@
-import { prop, Typegoose, staticMethod, ModelType } from 'typegoose';
+import mongoose, { Schema } from 'mongoose';
 
-import { Track } from '../../models/Track';
+import { IQueue } from '../../models/Queue';
 
-export class Queue extends Typegoose {
-  @prop({ unique: true })
-  guildID!: string;
+export const TrackSchema: Schema = new Schema({
+  provider: {
+    type: Schema.Types.String,
+    required: true,
+  },
 
-  @prop()
-  tracks?: Track[];
+  url: {
+    type: Schema.Types.String,
+    required: true,
+  },
 
-  /**
-   * Find a queue by a Discord guild id.
-   *
-   * @param this this reference to the Queue model
-   * @param guildID id of the guild, same as the Discord guild id
-   */
-  @staticMethod
-  static getByGuildID(this: ModelType<Queue> & typeof Queue, guildID: string) {
-    return this.findOne({ guildID });
-  }
-}
+  title: {
+    type: Schema.Types.String,
+    required: true,
+  },
 
-export const queueModel = new Queue().getModelForClass(Queue);
+  description: {
+    type: Schema.Types.String,
+    required: true,
+  },
+
+  views: {
+    type: Schema.Types.String,
+    required: true,
+  },
+
+  thumbnailURL: {
+    type: Schema.Types.String,
+    required: true,
+  },
+
+  duration: {
+    type: Schema.Types.String,
+    required: true,
+  },
+
+  initiator: {
+    type: Schema.Types.String,
+    required: true,
+  },
+});
+
+export const QueueSchema: Schema = new Schema({
+  guildID: {
+    type: Schema.Types.String,
+    required: true,
+    unique: true,
+  },
+
+  tracks: [TrackSchema],
+});
+
+export const QueueModel = mongoose.model<IQueue>('Queue', QueueSchema);
