@@ -15,6 +15,17 @@ export interface ITrack extends Document {
   initiator: string;
 }
 
+export interface ICreatedTrack {
+  provider: ITrack['provider'];
+  url: ITrack['url'];
+  title: ITrack['title'];
+  description: ITrack['description'];
+  views: ITrack['views'];
+  thumbnailURL: ITrack['thumbnailURL'];
+  duration: ITrack['duration'];
+  initiator: ITrack['initiator'];
+}
+
 export interface TrackSchema {
   provider: StringSchema;
   url: StringSchema;

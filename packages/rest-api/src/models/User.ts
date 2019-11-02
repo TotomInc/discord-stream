@@ -1,6 +1,6 @@
 import { Document } from 'mongoose';
 
-import { ITrack } from './Track';
+import { ITrack, ICreatedTrack } from './Track';
 
 /**
  * Mongoose schema of a `User`.
@@ -16,14 +16,14 @@ export interface ICreatedUser {
   clientID: IUser['clientID'];
   username: IUser['username'];
   hash: IUser['hash'];
-  favorites?: IUser['favorites'];
+  favorites?: ICreatedTrack[];
 }
 
 export interface IUpdatedUser {
   clientID: IUser['clientID'];
   username: IUser['username'];
   hash: IUser['hash'];
-  favorites?: IUser['favorites'];
+  favorites?: ICreatedTrack[];
 }
 
 export interface IPaginationUser {
