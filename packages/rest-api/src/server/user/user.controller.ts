@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import httpStatus from 'http-status';
 
 import { ICreatedUser, IUpdatedUser, IPaginationUser } from '../../models/User';
+import { ITrack } from '../../models/Track';
 import { UserModel } from './user.model';
 import { createFakeUsers } from './user.faker';
 
@@ -116,7 +117,7 @@ export function update(req: Request, res: Response, next: NextFunction) {
     if (updatedUser.favorites) {
       // Make sure to empty the favorites array before pushing data to it
       user.favorites.splice(0, user.favorites.length);
-      user.favorites.push(...updatedUser.favorites);
+      user.favorites.push(...updatedUser.favorites as ITrack[]);
     }
 
     return user.save()
