@@ -17,7 +17,7 @@ export function createFakeUsers(amount: number) {
 
     const fakeUser: ICreatedUser = {
       clientID: Types.ObjectId().toHexString(),
-      username: faker.name.firstName(),
+      username: faker.internet.userName(),
       hash: `#${Math.floor(Math.random() * (9999 - 1000 + 1) + 1000)}`,
       favorites: [...fakeTracks],
     };
