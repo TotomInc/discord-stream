@@ -5,7 +5,6 @@ import { trackSchema } from '../track/track.validators';
 export const create = {
   body: {
     guildID: joi.string().required(),
-    tracks: joi.array().has(trackSchema).optional(),
   },
 };
 

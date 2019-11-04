@@ -2,7 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import httpStatus from 'http-status';
 
 import { ITrack } from '../../models/Track';
-import { IPaginationQueue } from '../../models/Queue';
+import { IPaginationQueue, ICreatedQueue } from '../../models/Queue';
 import { QueueModel } from './queue.model';
 
 /**
@@ -22,6 +22,22 @@ export function load(req: Request, res: Response, next: NextFunction, guildID: s
 
       next();
     })
+    .catch(err => next(err));
+}
+
+/**
+ * Create a new queue for a guild.
+ *
+ * @param req Express request
+ * @param res Express response
+ * @param next Express next-function
+ */
+export function create(req: Request, res: Response, next: NextFunction) {
+  const newQueue: ICreatedQueue = req.body;
+
+  new QueueModel(newQueue)
+    .save()
+    .then(savedQueue => res.json(savedQueue.toJSON()))
     .catch(err => next(err));
 }
 

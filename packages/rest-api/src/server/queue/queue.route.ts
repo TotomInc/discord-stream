@@ -9,10 +9,10 @@ const router = express.Router({
   mergeParams: true,
 });
 
-// Not able to create new queues since this is already done in the creation of
-// a guild, only get a list of all queues
+// Create and get all existing queues
 router.route('/')
-  .get(queueCtrl.getAll);
+  .get(queueCtrl.getAll)
+  .post(queueCtrl.create);
 
 // `queueID` CRUD operations, cannot remove a queue since it's automatically
 // deleted when a guild is deleted
