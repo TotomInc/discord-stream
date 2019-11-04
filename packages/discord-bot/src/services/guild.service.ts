@@ -1,5 +1,4 @@
 import { Guild, GuildPrefix } from '../models/api/guild.model';
-import { config } from '../config/env';
 import { HTTPService } from './http.service';
 import { LoggerService } from './logger.service';
 
@@ -11,13 +10,7 @@ export class GuildService {
   constructor() {
     this.loggerService = new LoggerService();
 
-    this.http = new HTTPService({
-      baseURL: `${config.apiURI}/api`,
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${process.env['AUTH_TOKEN']}`,
-      },
-    });
+    this.http = new HTTPService();
   }
 
   /**

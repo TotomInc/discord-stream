@@ -1,5 +1,15 @@
 import Axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios';
 
+import { config } from '../config/env';
+
+const defaultAxiosConfig: AxiosRequestConfig = {
+  baseURL: `${config.apiURI}/api`,
+  headers: {
+    'Content-Type': 'application/json',
+    'Authorization': `Bearer ${process.env['AUTH_TOKEN']}`,
+  },
+};
+
 /**
  * A basic HTTP service which uses Axios. Create a local instance of Axios
  * which can be fully customized.
@@ -7,7 +17,7 @@ import Axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios';
 export class HTTPService {
   private axiosInstance: AxiosInstance;
 
-  constructor(options: AxiosRequestConfig) {
+  constructor(options: AxiosRequestConfig = defaultAxiosConfig) {
     this.axiosInstance = Axios.create({ ...options });
   }
 

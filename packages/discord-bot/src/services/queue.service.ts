@@ -9,13 +9,7 @@ export class QueueService {
   private logger: LoggerService;
 
   constructor() {
-    this.http = new HTTPService({
-      baseURL: `${config.apiURI}/api`,
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${process.env['AUTH_TOKEN']}`,
-      },
-    });
+    this.http = new HTTPService();
 
     this.logger = new LoggerService();
   }

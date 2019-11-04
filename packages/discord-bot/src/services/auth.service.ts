@@ -11,12 +11,7 @@ export class AuthService {
   private loggerService: LoggerService;
 
   constructor() {
-    this.httpService = new HTTPService({
-      baseURL: `${config.apiURI}/api`,
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    });
+    this.httpService = new HTTPService();
 
     this.loggerService = new LoggerService();
   }
