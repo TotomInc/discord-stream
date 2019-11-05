@@ -28,6 +28,8 @@ export class HTTPService {
    * @param config Axios request config
    */
   public get<T, R = AxiosResponse<T>>(url: string, config?: AxiosRequestConfig): Promise<R> {
+    this.setDefaultHeaders();
+
     return this.axiosInstance.get(url, config);
   }
 
@@ -38,6 +40,8 @@ export class HTTPService {
    * @param config Axios request config
    */
   public delete<T, R = AxiosResponse<T>>(url: string, config?: AxiosRequestConfig): Promise<R> {
+    this.setDefaultHeaders();
+
     return this.axiosInstance.delete(url, config);
   }
 
@@ -49,6 +53,8 @@ export class HTTPService {
    * @param config Axios request config
    */
   public post<T, R = AxiosResponse<T>>(url: string, data: any, config?: AxiosRequestConfig): Promise<R> {
+    this.setDefaultHeaders();
+
     return this.axiosInstance.post(url, data, config);
   }
 
@@ -60,6 +66,8 @@ export class HTTPService {
    * @param config Axios request config
    */
   public put<T, R = AxiosResponse<T>>(url: string, data: any, config?: AxiosRequestConfig): Promise<R> {
+    this.setDefaultHeaders();
+
     return this.axiosInstance.put(url, data, config);
   }
 
@@ -71,6 +79,18 @@ export class HTTPService {
    * @param config Axios request config
    */
   public patch<T, R = AxiosResponse<T>>(url: string, data: any, config?: AxiosRequestConfig): Promise<R> {
+    this.setDefaultHeaders();
+
     return this.axiosInstance.patch(url, data, config);
+  }
+
+  /**
+   * Call this method before any request in order to always have the latest
+   * JWT sent.
+   */
+  private setDefaultHeaders(): void {
+    const jwt = config.secrets.jwt;
+
+    this.axiosInstance.defaults.headers['Authorization'] = `Bearer ${process.env['AUTH_TOKEN']}`;
   }
 }
