@@ -73,21 +73,4 @@ export class HTTPService {
   public patch<T, R = AxiosResponse<T>>(url: string, data: any, config?: AxiosRequestConfig): Promise<R> {
     return this.axiosInstance.patch(url, data, config);
   }
-
-  /**
-   * Merge headers into the default Axios instance headers. Doesn't empty the
-   * object but will overwrite already existing headers.
-   *
-   * @param headers an object of headers
-   */
-  public setDefaultHeaders(headers: { [header: string]: string }) {
-    this.axiosInstance.defaults.headers = { ...headers };
-  }
-
-  /**
-   * Return the default config of the axios instance.
-   */
-  public getDefaultConfig() {
-    return this.axiosInstance.defaults;
-  }
 }
