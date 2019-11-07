@@ -67,20 +67,18 @@ export async function getAll(req: Request, res: Response, next: NextFunction) {
   const pagination: IPaginationQueue = {
     limit: parseInt(req.query['limit'], 10) || 100,
     skip: parseInt(req.query['skip'], 10) || 0,
+    max: req.query['max'] === 'true',
   };
 
-  // Make sure to have a maximum limit of 100 queues requested at once
-  pagination.limit = pagination.limit > 100 || pagination.limit < 0 ? 100 : pagination.limit;
-
-  const count = await QueueModel.estimatedDocumentCount();
+  if (pagination.max) {
+    pagination.limit = await QueueModel.estimatedDocumentCount();
+    pagination.skip = 0;
+  }
 
   return QueueModel.find({})
     .limit(pagination.limit)
     .skip(pagination.skip)
-    .then(queues => res.json({
-      count,
-      queues: queues.map(queue => queue.toJSON()),
-    }))
+    .then(queues => res.json(queues.map(queue => queue.toJSON())))
     .catch(err => next(err));
 }
 

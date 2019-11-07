@@ -23,4 +23,5 @@ export interface IUpdatedQueue {
 export interface IPaginationQueue {
   limit: number;
   skip: number;
+  max: boolean;
 }
