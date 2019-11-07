@@ -75,7 +75,8 @@ export function get(req: Request, res: Response) {
 }
 
 /**
- * Get all users, accept a pagination body (see `IPaginationUser`).
+ * Get all users (without their favorites), accept a pagination body (see
+ * `IPaginationUser`).
  *
  * @param req Express request
  * @param res Express response
@@ -93,7 +94,9 @@ export async function getAll(req: Request, res: Response, next: NextFunction) {
     pagination.skip = 0;
   }
 
-  return UserModel.find({})
+  return UserModel.find({}, {
+    favorites: 0,
+  })
     .limit(pagination.limit)
     .skip(pagination.skip)
     .then(users => res.json(users.map(user => user.toJSON())))
