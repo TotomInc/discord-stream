@@ -77,20 +77,21 @@ export function get(req: Request, res: Response) {
 /**
  * Get all users, accept a pagination body (see `IPaginationUser`).
  *
- * Limit to 100 users max, skip 0 users by default.
- *
  * @param req Express request
  * @param res Express response
  * @param next Express next-function
  */
-export function getAll(req: Request, res: Response, next: NextFunction) {
+export async function getAll(req: Request, res: Response, next: NextFunction) {
   const pagination: IPaginationUser = {
-    limit: parseInt(req.body['limit'], 10) || 100,
-    skip: parseInt(req.body['skip'], 10) || 0,
+    limit: parseInt(req.query['limit'], 10) || 100,
+    skip: parseInt(req.query['skip'], 10) || 0,
+    max: req.query['max'] === 'true',
   };
 
-  // Make sure to have a maximum limit of 100 users requested at once
-  pagination.limit = pagination.limit > 100 ? 100 : pagination.limit;
+  if (pagination.max) {
+    pagination.limit = await UserModel.estimatedDocumentCount();
+    pagination.skip = 0;
+  }
 
   return UserModel.find({})
     .limit(pagination.limit)

@@ -29,4 +29,5 @@ export interface IUpdatedUser {
 export interface IPaginationUser {
   limit: number;
   skip: number;
+  max: boolean;
 }
