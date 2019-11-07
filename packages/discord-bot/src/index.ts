@@ -7,13 +7,15 @@ dotenv.config({
 
 import { config } from './config/env';
 import { AuthService } from './services/auth.service';
+import { QueueService } from './services/queue.service';
 
 /**
  * Bootstrap the bot:
  *
  * 1. Login to the API and generate a JWT.
- * 2. Load guild prefixes from the API.
- * 3. Login the Discord client.
+ * 2. Load all queues from the API.
+ * 3. Load guild prefixes from the API.
+ * 4. Login the Discord client.
  *
  * We need to use dynamic imports because services used in those imports are
  * using the `HTTPService` (which requires the `Authorization` header with a
@@ -27,6 +29,13 @@ import { AuthService } from './services/auth.service';
 
   if (authErr || !jwt) {
     throw new Error('unable to authenticate on the API');
+  }
+
+  const queueService = new QueueService();
+  const [queuesErr, queues] = await to(queueService.getAll());
+
+  if (queuesErr || !queues) {
+    throw new Error('unable to load queues from the API');
   }
 
   const prefixes = await import('./prefixes');

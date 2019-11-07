@@ -1,4 +1,5 @@
 import Discord from 'discord.js';
+import to from 'await-to-js';
 
 import * as models from '../models';
 import { generateRichEmbed } from '../utils/rich-embed';
@@ -9,6 +10,26 @@ const queueService = new QueueService();
 
 /** Guild queues are stored and can be retrieved with a `guildID` */
 const queues: Discord.Collection<string, models.Track[]> = new Discord.Collection();
+
+/**
+ * Fetch all guild queues on the initialization. We **cannot** import queues
+ * with existing tracks on the bot init, instead we pass an empty array.
+ */
+export async function load() {
+  return new Promise<Discord.Collection<string, models.Track[]>>(async (res, rej) => {
+    const [queuesErr, allQueues] = await to(queueService.getAll());
+
+    if (queuesErr || !allQueues) {
+      rej(queuesErr || 'unable to load all queues');
+    } else {
+      allQueues.forEach((queue) => {
+        queues.set(queue.guildID, []);
+      });
+
+      res(queues);
+    }
+  });
+}
 
 /**
  * Add the content of the `tracks` into the `guildQueue`. If the queue doesn't
