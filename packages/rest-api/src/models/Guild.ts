@@ -37,4 +37,5 @@ export interface IUpdatedGuild {
 export interface IPaginationGuild {
   limit: number;
   skip: number;
+  max: boolean;
 }

@@ -123,35 +123,27 @@ export function get(req: Request, res: Response) {
  * Get all guilds, accept a pagination body (see `IPaginationGuild`) and
  * populate the `Queue` ref.
  *
- * Limit to 100 guilds max, skip 0 guilds by default.
- *
  * @param req Express request
  * @param res Express response
  * @param next Express next-function
  */
-export function getAll(req: Request, res: Response, next: NextFunction) {
+export async function getAll(req: Request, res: Response, next: NextFunction) {
   const pagination: IPaginationGuild = {
-    limit: parseInt(req.body['limit'], 10) || 100,
-    skip: parseInt(req.body['skip'], 10) || 0,
+    limit: parseInt(req.query['limit'], 10) || 100,
+    skip: parseInt(req.query['skip'], 10) || 0,
+    max: req.query['max'] === 'true',
   };
 
-  // Make sure to have a maximum limit of 100 guilds requested at once
-  pagination.limit = pagination.limit > 100 ? 100 : pagination.limit;
+  if (pagination.max) {
+    pagination.limit = await GuildModel.estimatedDocumentCount();
+    pagination.skip = 0;
+  }
 
   return GuildModel.find({})
     .limit(pagination.limit)
     .skip(pagination.skip)
-    .then(async (guilds) => {
-      const populatedGuilds = [];
-
-      for (const guild of guilds) {
-        const populatedGuild = await guild.populate('queue').execPopulate();
-
-        populatedGuilds.push(populatedGuild.toJSON());
-      }
-
-      return res.json(populatedGuilds);
-    })
+    .populate('queue')
+    .then(guilds => res.json(guilds.map(guild => guild.toJSON())))
     .catch(err => next(err));
 }
 
@@ -160,19 +152,29 @@ export function getAll(req: Request, res: Response, next: NextFunction) {
  * which have a custom prefixes. Query with projection, make sure to retrieve
  * only necessary values.
  *
- * This endpoint is required for the initialization of the bot and must **NOT**
- * be paginated.
- *
  * @param req Express request
  * @param res Express response
  * @param next Express next-function
  */
-export function getAllPrefixes(req: Request, res: Response, next: NextFunction) {
-  GuildModel.find({}, {
+export async function getAllPrefixes(req: Request, res: Response, next: NextFunction) {
+  const pagination: IPaginationGuild = {
+    limit: parseInt(req.query['limit'], 10) || 100,
+    skip: parseInt(req.query['skip'], 10) || 0,
+    max: req.query['max'] === 'true',
+  };
+
+  if (pagination.max) {
+    pagination.limit = await GuildModel.estimatedDocumentCount();
+    pagination.skip = 0;
+  }
+
+  return GuildModel.find({}, {
     guildID: 1,
     prefix: 1,
   })
-    .then(guilds => guilds.map(guild => guild.toJSON()))
+    .limit(pagination.limit)
+    .skip(pagination.skip)
+    .then(guilds => res.json(guilds.map(guild => guild.toJSON())))
     .catch(err => next(err));
 }
 
