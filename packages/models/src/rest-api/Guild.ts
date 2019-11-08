@@ -30,3 +30,14 @@ export interface IGuilds {
   iconURL?: IGuild['iconURL'];
   queue: IGuild['queue'];
 }
+
+/**
+ * A single guild-prefix model when retrieving all prefixes of all guilds.
+ *
+ * This model only contains guildID and guild prefix.
+ */
+export interface IGuildPrefix {
+  _id: IGuild['_id'];
+  prefix: IGuild['prefix'];
+  guildID: IGuild['guildID'];
+}
