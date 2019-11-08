@@ -1,4 +1,4 @@
-export { IGuild, IGuilds } from './rest-api/Guild';
-export { IQueue, IQueues } from './rest-api/Queue';
-export { ITrack } from './rest-api/Track';
-export { IUser } from './rest-api/User';
+export * from './rest-api/Guild';
+export * from './rest-api/Queue';
+export * from './rest-api/Track';
+export * from './rest-api/User';
