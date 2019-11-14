@@ -3,16 +3,15 @@
 [![Greenkeeper badge](https://badges.greenkeeper.io/TotomInc/discord-stream.svg)](https://greenkeeper.io/)
 [![lerna](https://img.shields.io/badge/maintained%20with-lerna-cc00ff.svg)](https://lernajs.io/)
 
-> A music bot for Discord with high-performance, easily scalable.
+> A music bot for Discord with high-performance.
 
 ## Structure
 
-The project is split into smaller packages which can be found into the `/packages` folder:
+This project a mono-repo, which means it is split into smaller packages:
 
 - `discord-bot`: source for the Discord bot.
-- `rest-api`: an API to communicate with the MongoDB.
-
-Each package contains a `readme`.
+- `rest-api`: an API to communicate with MongoDB and third-party tools.
+- `models`: contains models that are used across the multiple packages.
 
 ## Quick-setup
 
@@ -23,25 +22,25 @@ Each package contains a `readme`.
 
 2. Bootstrap all packages and build them:
 
-```bash
-# install dependencies across the multiple packages
-yarn
+    ```bash
+    # link local-dependencies and install other dependencies on all packages
+    yarn bootstrap
 
-# run build script on all packages
-yarn build
-```
+    # run build script on all packages
+    yarn build
+    ```
 
-3. Create a copy of the `.env.example` as a `.env` file and make sure to fill all the requested fields, otherwise the bot won't start and work properly.
+3. Create a copy of the `.env.example` as a `.env` file and make sure to fill all the requested fields.
 
-4. You will need to run all packages as background processes, I recommend using [PM2](https://pm2.io/doc/en/runtime/overview/).
+4. You will need to run all packages as separate background processes, I recommend using [PM2](https://pm2.io/doc/en/runtime/overview/) for this task.
 
-```bash
-## start the rest-api server as a background process
-pm2 start packages/rest-api/dist --name rest-api
+    ```bash
+    ## start the rest-api server as a background process
+    pm2 start packages/rest-api/dist --name rest-api
 
-## start the discord-bot as a background process
-pm2 start packages/discord-bot/dist --name discord-bot
-```
+    ## start the discord-bot as a background process
+    pm2 start packages/discord-bot/dist --name discord-bot
+    ```
 
 ## License
 
