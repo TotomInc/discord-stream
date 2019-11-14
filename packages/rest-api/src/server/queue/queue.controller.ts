@@ -1,8 +1,7 @@
+import { IPagination, ICreateQueue, IUpdateQueue } from '@discord-stream/models';
 import { Request, Response, NextFunction } from 'express';
 import httpStatus from 'http-status';
 
-import { ITrack } from '../../models/Track';
-import { IPaginationQueue, ICreatedQueue } from '../../models/Queue';
 import { QueueModel } from './queue.model';
 
 /**
@@ -33,7 +32,7 @@ export function load(req: Request, res: Response, next: NextFunction, guildID: s
  * @param next Express next-function
  */
 export function create(req: Request, res: Response, next: NextFunction) {
-  const newQueue: ICreatedQueue = req.body;
+  const newQueue: ICreateQueue = req.body;
 
   new QueueModel(newQueue)
     .save()
@@ -56,7 +55,7 @@ export function get(req: Request, res: Response) {
 }
 
 /**
- * Get all queues, accept a pagination body (see `IPaginationQueue`).
+ * Get all queues, accept a pagination body.
  *
  * Limit to 100 queues max, skip 0 queues by default.
  *
@@ -64,7 +63,7 @@ export function get(req: Request, res: Response) {
  * @param res Express response
  */
 export async function getAll(req: Request, res: Response, next: NextFunction) {
-  const pagination: IPaginationQueue = {
+  const pagination: IPagination = {
     limit: parseInt(req.query['limit'], 10) || 100,
     skip: parseInt(req.query['skip'], 10) || 0,
     max: req.query['max'] === 'true',
@@ -76,8 +75,8 @@ export async function getAll(req: Request, res: Response, next: NextFunction) {
   }
 
   return QueueModel.find({})
-    .limit(pagination.limit)
-    .skip(pagination.skip)
+    .limit(pagination.limit || 100)
+    .skip(pagination.skip || 0)
     .then(queues => res.json(queues.map(queue => queue.toJSON())))
     .catch(err => next(err));
 }
@@ -92,11 +91,11 @@ export async function getAll(req: Request, res: Response, next: NextFunction) {
 export function update(req: Request, res: Response, next: NextFunction) {
   if (req.queue && req.queue._id) {
     const queue = req.queue;
-    const tracks = req.body['tracks'] as ITrack[];
+    const newQueue = req.body as IUpdateQueue;
 
     // Empty tracks array before adding tracks
     queue.tracks.splice(0, queue.tracks.length);
-    queue.tracks.push(...tracks);
+    queue.tracks.push(...newQueue.tracks);
 
     return queue.save()
       .then(savedQueue => res.json(savedQueue.toJSON()))

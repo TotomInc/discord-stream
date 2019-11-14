@@ -1,6 +1,5 @@
+import { IGuildDocument } from '@discord-stream/models';
 import mongoose, { Schema } from 'mongoose';
-
-import { IGuild } from '../../models/Guild';
 
 export const GuildSchema: Schema = new Schema({
   guildID: {
@@ -44,4 +43,4 @@ export const GuildSchema: Schema = new Schema({
   versionKey: false,
 });
 
-export const GuildModel = mongoose.model<IGuild>('Guild', GuildSchema);
+export const GuildModel = mongoose.model<IGuildDocument>('Guild', GuildSchema);

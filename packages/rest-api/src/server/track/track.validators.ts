@@ -1,8 +1,6 @@
 import joi from 'joi';
 
-import { TrackSchema } from '../../models/Track';
-
-export const trackSchema: TrackSchema = {
+export const trackSchema = {
   provider: joi.string().required(),
   url: joi.string().uri().required(),
   title: joi.string().required(),

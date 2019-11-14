@@ -1,8 +1,7 @@
+import { ICreateUser, IUpdateUser, IPagination, ITrack } from '@discord-stream/models';
 import { Request, Response, NextFunction } from 'express';
 import httpStatus from 'http-status';
 
-import { ICreatedUser, IUpdatedUser, IPaginationUser } from '../../models/User';
-import { ITrack } from '../../models/Track';
 import { UserModel } from './user.model';
 import { createFakeUsers } from './user.faker';
 
@@ -36,7 +35,7 @@ export function load(req: Request, res: Response, next: NextFunction, id: string
  * @param next Express next-function
  */
 export function create(req: Request, res: Response, next: NextFunction) {
-  const newUser: ICreatedUser = req.body;
+  const newUser: ICreateUser = req.body;
 
   new UserModel(newUser)
     .save()
@@ -75,17 +74,16 @@ export function get(req: Request, res: Response) {
 }
 
 /**
- * Get all users (without their favorites), accept a pagination body (see
- * `IPaginationUser`).
+ * Get all users (without their favorites), accept pagination URL query params.
  *
  * @param req Express request
  * @param res Express response
  * @param next Express next-function
  */
 export async function getAll(req: Request, res: Response, next: NextFunction) {
-  const pagination: IPaginationUser = {
-    limit: parseInt(req.query['limit'], 10) || 100,
-    skip: parseInt(req.query['skip'], 10) || 0,
+  const pagination: IPagination = {
+    limit: parseInt(req.query['limit'], 10),
+    skip: parseInt(req.query['skip'], 10),
     max: req.query['max'] === 'true',
   };
 
@@ -97,8 +95,8 @@ export async function getAll(req: Request, res: Response, next: NextFunction) {
   return UserModel.find({}, {
     favorites: 0,
   })
-    .limit(pagination.limit)
-    .skip(pagination.skip)
+    .limit(pagination.limit || 100)
+    .skip(pagination.skip || 0)
     .then(users => res.json(users.map(user => user.toJSON())))
     .catch(err => next(err));
 }
@@ -113,7 +111,7 @@ export async function getAll(req: Request, res: Response, next: NextFunction) {
 export function update(req: Request, res: Response, next: NextFunction) {
   if (req.user && req.user._id) {
     const user = req.user;
-    const updatedUser: IUpdatedUser = req.body;
+    const updatedUser: IUpdateUser = req.body;
 
     user.username = updatedUser.username;
     user.hash = updatedUser.hash;

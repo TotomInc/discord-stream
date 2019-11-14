@@ -1,7 +1,6 @@
-import * as faker from 'faker';
+import { ICreateGuild } from '@discord-stream/models';
 import { Types } from 'mongoose';
-
-import { ICreatedGuild } from '../../models/Guild';
+import * as faker from 'faker';
 
 /**
  * Create a massive amount of fake guilds.
@@ -9,16 +8,17 @@ import { ICreatedGuild } from '../../models/Guild';
  * @param amount amount of fake guilds to create
  */
 export function createFakeGuilds(amount: number) {
-  const guilds: ICreatedGuild[] = [];
+  const guilds: ICreateGuild[] = [];
 
   for (let i = 0; i < amount; i += 1) {
-    const fakeGuild: ICreatedGuild = {
+    const fakeGuild: ICreateGuild = {
       guildID: Types.ObjectId().toHexString(),
       name: faker.internet.userName(),
       ownerID: Types.ObjectId().toHexString(),
       region: faker.address.countryCode(),
-      prefix: Math.floor(Math.random() * 10) > 5 ? faker.random.word() : undefined,
+      prefix: faker.random.alphaNumeric(4),
       iconURL: Math.floor(Math.random() * 10) > 5 ? faker.image.imageUrl() : undefined,
+      queue: faker.random.uuid(),
     };
 
     guilds.push(fakeGuild);

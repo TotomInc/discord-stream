@@ -1,6 +1,6 @@
+import { IQueueDocument } from '@discord-stream/models';
 import mongoose, { Schema } from 'mongoose';
 
-import { IQueue } from '../../models/Queue';
 import { TrackSchema } from '../track/track.model';
 
 export const QueueSchema: Schema = new Schema({
@@ -15,4 +15,4 @@ export const QueueSchema: Schema = new Schema({
   versionKey: false,
 });
 
-export const QueueModel = mongoose.model<IQueue>('Queue', QueueSchema);
+export const QueueModel = mongoose.model<IQueueDocument>('Queue', QueueSchema);

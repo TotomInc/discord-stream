@@ -1,11 +1,10 @@
+import { ICreateGuild, ICreateQueue, IPagination, IUpdateGuild, IUpdateGuildPrefix } from '@discord-stream/models';
 import { Request, Response, NextFunction } from 'express';
 import httpStatus from 'http-status';
 
-import { GuildModel } from './guild.model';
 import { createFakeGuilds } from './guild.faker';
+import { GuildModel } from './guild.model';
 import { QueueModel } from '../queue/queue.model';
-import { ICreatedGuild, IPaginationGuild, IUpdatedGuild } from '../../models/Guild';
-import { ICreatedQueue } from '../../models/Queue';
 
 /**
  * Preload the guild into the `Request` when we hit a `guildID` param.
@@ -45,24 +44,24 @@ export function load(req: Request, res: Response, next: NextFunction, guildID: s
  * @param next Express next-function
  */
 export function create(req: Request, res: Response, next: NextFunction) {
-  const newGuild: ICreatedGuild = {
-    guildID: req.body['guildID'],
-    name: req.body['name'],
-    iconURL: req.body['iconURL'],
-    ownerID: req.body['ownerID'],
-    region: req.body['region'],
-    prefix: req.body['prefix'] || '=note',
-  };
+  const guildID = req.body['guildID'] as string;
 
-  const newQueue: ICreatedQueue = {
-    guildID: newGuild.guildID,
-    tracks: [],
+  const newQueue: ICreateQueue = {
+    guildID,
   };
 
   new QueueModel(newQueue)
     .save()
     .then((savedQueue) => {
-      newGuild.queue = savedQueue._id;
+      const newGuild: ICreateGuild = {
+        guildID,
+        name: req.body['name'],
+        iconURL: req.body['iconURL'],
+        ownerID: req.body['ownerID'],
+        region: req.body['region'],
+        prefix: req.body['prefix'] || '=note',
+        queue: savedQueue._id,
+      };
 
       return new GuildModel(newGuild).save();
     })
@@ -82,9 +81,8 @@ export function createFake(req: Request, res: Response, next: NextFunction) {
 
   // Generate fake queues based on fake guilds generated
   fakeGuilds.map((fakeGuild) => {
-    const fakeQueue: ICreatedQueue = {
+    const fakeQueue: ICreateQueue = {
       guildID: fakeGuild.guildID,
-      tracks: [],
     };
 
     return {
@@ -128,9 +126,9 @@ export function get(req: Request, res: Response) {
  * @param next Express next-function
  */
 export async function getAll(req: Request, res: Response, next: NextFunction) {
-  const pagination: IPaginationGuild = {
-    limit: parseInt(req.query['limit'], 10) || 100,
-    skip: parseInt(req.query['skip'], 10) || 0,
+  const pagination: IPagination = {
+    limit: parseInt(req.query['limit'], 10),
+    skip: parseInt(req.query['skip'], 10),
     max: req.query['max'] === 'true',
   };
 
@@ -140,8 +138,8 @@ export async function getAll(req: Request, res: Response, next: NextFunction) {
   }
 
   return GuildModel.find({})
-    .limit(pagination.limit)
-    .skip(pagination.skip)
+    .limit(pagination.limit || 100)
+    .skip(pagination.skip || 0)
     .populate('queue')
     .then(guilds => res.json(guilds.map(guild => guild.toJSON())))
     .catch(err => next(err));
@@ -157,9 +155,9 @@ export async function getAll(req: Request, res: Response, next: NextFunction) {
  * @param next Express next-function
  */
 export async function getAllPrefixes(req: Request, res: Response, next: NextFunction) {
-  const pagination: IPaginationGuild = {
-    limit: parseInt(req.query['limit'], 10) || 100,
-    skip: parseInt(req.query['skip'], 10) || 0,
+  const pagination: IPagination = {
+    limit: parseInt(req.query['limit'], 10),
+    skip: parseInt(req.query['skip'], 10),
     max: req.query['max'] === 'true',
   };
 
@@ -172,8 +170,8 @@ export async function getAllPrefixes(req: Request, res: Response, next: NextFunc
     guildID: 1,
     prefix: 1,
   })
-    .limit(pagination.limit)
-    .skip(pagination.skip)
+    .limit(pagination.limit || 100)
+    .skip(pagination.skip || 0)
     .then(guilds => res.json(guilds.map(guild => guild.toJSON())))
     .catch(err => next(err));
 }
@@ -189,7 +187,16 @@ export async function getAllPrefixes(req: Request, res: Response, next: NextFunc
 export function update(req: Request, res: Response, next: NextFunction) {
   if (req.guild && req.guild._id) {
     const guild = req.guild;
-    const updatedGuild: IUpdatedGuild = req.body;
+
+    const updatedGuild: IUpdateGuild = {
+      guildID: req.body['guildID'],
+      name: req.body['name'],
+      iconURL: req.body['iconURL'],
+      ownerID: req.body['ownerID'],
+      region: req.body['region'],
+      prefix: req.body['prefix'],
+      queue: req.body['queue'],
+    };
 
     guild.name = updatedGuild.name;
     guild.ownerID = updatedGuild.ownerID;
@@ -221,9 +228,12 @@ export function update(req: Request, res: Response, next: NextFunction) {
 export function updatePrefix(req: Request, res: Response, next: NextFunction) {
   if (req.guild && req.guild._id) {
     const guild = req.guild;
-    const newPrefix: string = req.body['prefix'];
 
-    guild.prefix = newPrefix;
+    const updatedGuild: IUpdateGuildPrefix = {
+      prefix: req.body['prefix'],
+    };
+
+    guild.prefix = updatedGuild.prefix;
 
     return guild.save()
       .then(savedGuild => res.json(savedGuild.toJSON()))

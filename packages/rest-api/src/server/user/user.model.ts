@@ -1,6 +1,6 @@
+import { IUserDocument } from '@discord-stream/models';
 import mongoose, { Schema } from 'mongoose';
 
-import { IUser } from '../../models/User';
 import { TrackSchema } from '../track/track.model';
 
 export const UserSchema: Schema = new Schema({
@@ -25,4 +25,4 @@ export const UserSchema: Schema = new Schema({
   versionKey: false,
 });
 
-export const UserModel = mongoose.model<IUser>('User', UserSchema);
+export const UserModel = mongoose.model<IUserDocument>('User', UserSchema);

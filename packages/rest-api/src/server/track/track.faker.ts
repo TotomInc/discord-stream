@@ -1,6 +1,5 @@
+import { ICreateTrack } from '@discord-stream/models';
 import * as faker from 'faker';
-
-import { ICreatedTrack } from '../../models/Track';
 
 /**
  * Create a massive amount of fake tracks.
@@ -8,10 +7,10 @@ import { ICreatedTrack } from '../../models/Track';
  * @param amount amount of fake tracks to create
  */
 export function createFakeTracks(amount: number) {
-  const tracks: ICreatedTrack[] = [];
+  const tracks: ICreateTrack[] = [];
 
   for (let i = 0; i < amount; i += 1) {
-    const fakeTrack: ICreatedTrack = {
+    const fakeTrack: ICreateTrack = {
       provider: faker.company.companyName(),
       url: faker.internet.url(),
       title: faker.lorem.words(3),
@@ -19,7 +18,9 @@ export function createFakeTracks(amount: number) {
       views: faker.random.number(1e6).toString(),
       thumbnailURL: faker.internet.url(),
       duration: faker.random.number(1e4).toString(),
-      initiator: faker.internet.userName(),
+      guildID: faker.random.uuid(),
+      channelID: faker.random.uuid(),
+      memberID: faker.random.uuid(),
     };
 
     tracks.push(fakeTrack);
