@@ -4,10 +4,6 @@ node_js:
 - "node"
 - "lts/*"
 
-cache:
-  directories:
-  - node_modules
-
 sudo: false
 
 script:
