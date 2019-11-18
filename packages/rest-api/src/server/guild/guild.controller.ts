@@ -1,4 +1,4 @@
-import { ICreateGuild, ICreateQueue, IPagination, IUpdateGuild, IUpdateGuildPrefix } from '@discord-stream/models';
+import { QueueAPI, GuildAPI, PaginationAPI } from '@discord-stream/models';
 import { Request, Response, NextFunction } from 'express';
 import httpStatus from 'http-status';
 
@@ -46,14 +46,14 @@ export function load(req: Request, res: Response, next: NextFunction, guildID: s
 export function create(req: Request, res: Response, next: NextFunction) {
   const guildID = req.body['guildID'] as string;
 
-  const newQueue: ICreateQueue = {
+  const newQueue: QueueAPI.ICreateQueue = {
     guildID,
   };
 
   new QueueModel(newQueue)
     .save()
     .then((savedQueue) => {
-      const newGuild: ICreateGuild = {
+      const newGuild: GuildAPI.ICreateGuild = {
         guildID,
         name: req.body['name'],
         iconURL: req.body['iconURL'],
@@ -81,7 +81,7 @@ export function createFake(req: Request, res: Response, next: NextFunction) {
 
   // Generate fake queues based on fake guilds generated
   fakeGuilds.map((fakeGuild) => {
-    const fakeQueue: ICreateQueue = {
+    const fakeQueue: QueueAPI.ICreateQueue = {
       guildID: fakeGuild.guildID,
     };
 
@@ -126,7 +126,7 @@ export function get(req: Request, res: Response) {
  * @param next Express next-function
  */
 export async function getAll(req: Request, res: Response, next: NextFunction) {
-  const pagination: IPagination = {
+  const pagination: PaginationAPI.IPagination = {
     limit: parseInt(req.query['limit'], 10),
     skip: parseInt(req.query['skip'], 10),
     max: req.query['max'] === 'true',
@@ -155,7 +155,7 @@ export async function getAll(req: Request, res: Response, next: NextFunction) {
  * @param next Express next-function
  */
 export async function getAllPrefixes(req: Request, res: Response, next: NextFunction) {
-  const pagination: IPagination = {
+  const pagination: PaginationAPI.IPagination = {
     limit: parseInt(req.query['limit'], 10),
     skip: parseInt(req.query['skip'], 10),
     max: req.query['max'] === 'true',
@@ -188,7 +188,7 @@ export function update(req: Request, res: Response, next: NextFunction) {
   if (req.guild && req.guild._id) {
     const guild = req.guild;
 
-    const updatedGuild: IUpdateGuild = {
+    const updatedGuild: GuildAPI.IUpdateGuild = {
       guildID: req.body['guildID'],
       name: req.body['name'],
       iconURL: req.body['iconURL'],
@@ -229,7 +229,7 @@ export function updatePrefix(req: Request, res: Response, next: NextFunction) {
   if (req.guild && req.guild._id) {
     const guild = req.guild;
 
-    const updatedGuild: IUpdateGuildPrefix = {
+    const updatedGuild: GuildAPI.IUpdateGuildPrefix = {
       prefix: req.body['prefix'],
     };
 

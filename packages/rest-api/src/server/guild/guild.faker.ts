@@ -1,4 +1,4 @@
-import { ICreateGuild } from '@discord-stream/models';
+import { GuildAPI } from '@discord-stream/models';
 import { Types } from 'mongoose';
 import * as faker from 'faker';
 
@@ -8,10 +8,10 @@ import * as faker from 'faker';
  * @param amount amount of fake guilds to create
  */
 export function createFakeGuilds(amount: number) {
-  const guilds: ICreateGuild[] = [];
+  const guilds: GuildAPI.ICreateGuild[] = [];
 
   for (let i = 0; i < amount; i += 1) {
-    const fakeGuild: ICreateGuild = {
+    const fakeGuild: GuildAPI.ICreateGuild = {
       guildID: Types.ObjectId().toHexString(),
       name: faker.internet.userName(),
       ownerID: Types.ObjectId().toHexString(),

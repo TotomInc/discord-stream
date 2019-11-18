@@ -1,4 +1,4 @@
-import { IPagination, ICreateQueue, IUpdateQueue } from '@discord-stream/models';
+import { PaginationAPI, QueueAPI } from '@discord-stream/models';
 import { Request, Response, NextFunction } from 'express';
 import httpStatus from 'http-status';
 
@@ -32,7 +32,7 @@ export function load(req: Request, res: Response, next: NextFunction, guildID: s
  * @param next Express next-function
  */
 export function create(req: Request, res: Response, next: NextFunction) {
-  const newQueue: ICreateQueue = req.body;
+  const newQueue: QueueAPI.ICreateQueue = req.body;
 
   new QueueModel(newQueue)
     .save()
@@ -63,7 +63,7 @@ export function get(req: Request, res: Response) {
  * @param res Express response
  */
 export async function getAll(req: Request, res: Response, next: NextFunction) {
-  const pagination: IPagination = {
+  const pagination: PaginationAPI.IPagination = {
     limit: parseInt(req.query['limit'], 10) || 100,
     skip: parseInt(req.query['skip'], 10) || 0,
     max: req.query['max'] === 'true',
@@ -91,7 +91,7 @@ export async function getAll(req: Request, res: Response, next: NextFunction) {
 export function update(req: Request, res: Response, next: NextFunction) {
   if (req.queue && req.queue._id) {
     const queue = req.queue;
-    const newQueue = req.body as IUpdateQueue;
+    const newQueue = req.body as QueueAPI.IUpdateQueue;
 
     // Empty tracks array before adding tracks
     queue.tracks.splice(0, queue.tracks.length);

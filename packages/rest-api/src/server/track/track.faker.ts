@@ -1,4 +1,4 @@
-import { ICreateTrack } from '@discord-stream/models';
+import { TrackAPI } from '@discord-stream/models';
 import * as faker from 'faker';
 
 /**
@@ -7,10 +7,10 @@ import * as faker from 'faker';
  * @param amount amount of fake tracks to create
  */
 export function createFakeTracks(amount: number) {
-  const tracks: ICreateTrack[] = [];
+  const tracks: TrackAPI.ICreateTrack[] = [];
 
   for (let i = 0; i < amount; i += 1) {
-    const fakeTrack: ICreateTrack = {
+    const fakeTrack: TrackAPI.ICreateTrack = {
       provider: faker.company.companyName(),
       url: faker.internet.url(),
       title: faker.lorem.words(3),

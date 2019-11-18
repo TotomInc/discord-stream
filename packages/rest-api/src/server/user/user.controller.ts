@@ -1,4 +1,4 @@
-import { ICreateUser, IUpdateUser, IPagination, ITrack } from '@discord-stream/models';
+import { UserAPI, PaginationAPI, TrackAPI } from '@discord-stream/models';
 import { Request, Response, NextFunction } from 'express';
 import httpStatus from 'http-status';
 
@@ -35,7 +35,7 @@ export function load(req: Request, res: Response, next: NextFunction, id: string
  * @param next Express next-function
  */
 export function create(req: Request, res: Response, next: NextFunction) {
-  const newUser: ICreateUser = req.body;
+  const newUser: UserAPI.ICreateUser = req.body;
 
   new UserModel(newUser)
     .save()
@@ -81,7 +81,7 @@ export function get(req: Request, res: Response) {
  * @param next Express next-function
  */
 export async function getAll(req: Request, res: Response, next: NextFunction) {
-  const pagination: IPagination = {
+  const pagination: PaginationAPI.IPagination = {
     limit: parseInt(req.query['limit'], 10),
     skip: parseInt(req.query['skip'], 10),
     max: req.query['max'] === 'true',
@@ -111,7 +111,7 @@ export async function getAll(req: Request, res: Response, next: NextFunction) {
 export function update(req: Request, res: Response, next: NextFunction) {
   if (req.user && req.user._id) {
     const user = req.user;
-    const updatedUser: IUpdateUser = req.body;
+    const updatedUser: UserAPI.IUpdateUser = req.body;
 
     user.username = updatedUser.username;
     user.hash = updatedUser.hash;
@@ -119,7 +119,7 @@ export function update(req: Request, res: Response, next: NextFunction) {
     if (updatedUser.favorites) {
       // Make sure to empty the favorites array before pushing data to it
       user.favorites.splice(0, user.favorites.length);
-      user.favorites.push(...updatedUser.favorites as ITrack[]);
+      user.favorites.push(...updatedUser.favorites as TrackAPI.ITrack[]);
     }
 
     return user.save()

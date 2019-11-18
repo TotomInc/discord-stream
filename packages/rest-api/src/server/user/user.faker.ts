@@ -1,4 +1,4 @@
-import { ICreateUser } from '@discord-stream/models';
+import { UserAPI } from '@discord-stream/models';
 import { Types } from 'mongoose';
 import * as faker from 'faker';
 
@@ -8,10 +8,10 @@ import * as faker from 'faker';
  * @param amount amount of fake users to create
  */
 export function createFakeUsers(amount: number) {
-  const users: ICreateUser[] = [];
+  const users: UserAPI.ICreateUser[] = [];
 
   for (let i = 0; i < amount; i += 1) {
-    const fakeUser: ICreateUser = {
+    const fakeUser: UserAPI.ICreateUser = {
       clientID: Types.ObjectId().toHexString(),
       username: faker.internet.userName(),
       hash: `#${Math.floor(Math.random() * (9999 - 1000 + 1) + 1000)}`,
