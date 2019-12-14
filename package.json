@@ -6,8 +6,7 @@
   "license": "MIT",
   "scripts": {
     "build": "lerna run build",
-    "bootstrap": "lerna bootstrap",
-    "postinstall": "yarn run bootstrap"
+    "bootstrap": "lerna bootstrap"
   },
   "devDependencies": {
     "lerna": "^3.13.0"
