@@ -1,0 +1,31 @@
+{
+  "name": "@discord-stream/providers",
+  "version": "0.0.0",
+  "main": "dist/index.js",
+  "author": "TotomInc <cazade.thomas@gmail.com>",
+  "license": "MIT",
+  "scripts": {
+    "build": "yarn build:clean && yarn build:compile",
+    "build:clean": "rm -rf ./dist",
+    "build:compile": "tsc -p tsconfig.json"
+  },
+  "devDependencies": {
+    "@types/dotenv": "^8.2.0",
+    "@types/joi": "^14.3.4",
+    "@types/node": "^12.12.17",
+    "ts-node": "^8.5.4",
+    "tslint": "^5.20.1",
+    "tslint-config-airbnb": "^5.11.2",
+    "typescript": "^3.1.1"
+  },
+  "dependencies": {
+    "@discord-stream/models": "^0.0.0",
+    "await-to-js": "^2.1.1",
+    "axios": "^0.19.0",
+    "discord.js": "^11.5.1",
+    "dotenv": "^8.2.0",
+    "joi": "^14.3.1",
+    "typescript": "^3.7.3",
+    "ytdl-core": "^1.0.3"
+  }
+}

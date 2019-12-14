@@ -1,0 +1,25 @@
+{
+  "compilerOptions": {
+    "outDir": "./dist",
+    "target": "es6",
+    "module": "commonjs",
+    "strict": true,
+    "moduleResolution": "node",
+    "esModuleInterop": true,
+    "sourceMap": false,
+    "resolveJsonModule": true,
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "baseUrl": ".",
+    "types": ["node"],
+    "lib": ["esnext"],
+    "paths": {
+      "*": ["node_modules/*"],
+      "@/*": ["./src/*"],
+      "@api/*": ["./src/api/*"],
+      "@handlers/*": ["./src/handlers/*"]
+    }
+  },
+  "include": ["src/**/*"],
+  "exclude": ["node_modules"]
+}

@@ -1,0 +1,53 @@
+import * as joi from 'joi';
+
+// Validate the environment variables schema, this ensures we don't have some
+// undefined variables.
+const envSchema = joi.object({
+  NODE_ENV: joi.string()
+    .allow(['development', 'production', 'test'])
+    .default('development'),
+  API_PORT: joi.number().port().default(4000),
+  JWT_SECRET: joi.string().required(),
+  MONGO_URI: joi.string().required(),
+  INTERFACE_URI: joi.string().required(),
+  API_URI: joi.string().required(),
+  OWNER_USER_ID: joi.any().required(),
+  BOT_USER_ID: joi.any().required(),
+  DEFAULT_PREFIX: joi.string().required(),
+  DISCORD_TOKEN: joi.string().required(),
+  DISCORD_SECRET: joi.string().required(),
+  YOUTUBE_TOKEN: joi.string().required(),
+  SOUNDCLOUD_TOKEN: joi.string().required(),
+})
+  .unknown().required();
+
+const { error, value: vars } = joi.validate(process.env, envSchema);
+
+if (error) {
+  throw new Error(`Config validation errors, please check the .env file: ${error.message}`);
+}
+
+export const config = {
+  tokens: {
+    discord: vars.DISCORD_TOKEN as string,
+    youtube: vars.YOUTUBE_TOKEN as string,
+    soundcloud: vars.SOUNDCLOUD_TOKEN as string,
+  },
+
+  secrets: {
+    jwt: vars.JWT_SECRET as string,
+    discord: vars.DISCORD_SECRET as string,
+  },
+
+  bot: {
+    prefix: vars.DEFAULT_PREFIX as string,
+    userID: vars.BOT_USER_ID as unknown as number,
+    ownerUserID: vars.OWNER_USER_ID as unknown as number,
+  },
+
+  env: vars.NODE_ENV as string,
+  apiPort: vars.API_PORT as unknown as number,
+  mongoURI: vars.MONGO_URI as string,
+  interfaceURI: vars.INTERFACE_URI as string,
+  apiURI: vars.API_URI as string,
+};
