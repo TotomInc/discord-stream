@@ -2,9 +2,9 @@ import { Stream, Soundcloud } from '@discord-stream/models';
 import Discord from 'discord.js';
 import to from 'await-to-js';
 
-import { config } from '@/config';
-import { ProviderHandler } from '@/handler';
-import SoundcloudAPI from '@api/SoundcloudAPI';
+import { config } from '../config';
+import { ProviderHandler } from '../handler';
+import SoundcloudAPI from '../api/SoundcloudAPI';
 
 export default class SoundcloudHandler extends ProviderHandler {
   /**
@@ -20,7 +20,7 @@ export default class SoundcloudHandler extends ProviderHandler {
 
     if (isValidURL) {
       const [err, resource] = await to(SoundcloudAPI.resolveURL(query));
-  
+
       if (!err && resource && SoundcloudHandler.isTrack(resource)) {
         const mappedTrack: Stream.ITrack = this.mapTrack(resource, message);
 
@@ -32,14 +32,14 @@ export default class SoundcloudHandler extends ProviderHandler {
       }
     } else {
       const [err, trackSearchResults] = await to(SoundcloudAPI.searchTrack(query));
-  
+
       if (!err && trackSearchResults) {
         trackSearchResults.slice(0, 3)
           .map(track => this.mapTrack(track, message))
           .forEach(track => tracks.push(track));
       }
     }
-  
+
     return tracks;
   }
 

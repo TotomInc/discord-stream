@@ -9,13 +9,13 @@ import { Stream, StreamProviders } from '@discord-stream/models';
 import Discord from 'discord.js';
 import to from 'await-to-js';
 
-import YoutubeHandler from '@handlers/youtube.handler';
-import SoundcloudHandler from '@handlers/souncloud.handler';
+import YoutubeHandler from './handlers/youtube.handler';
+import SoundcloudHandler from './handlers/souncloud.handler';
 
 const handlers = {
   youtube: new YoutubeHandler(),
   soundcloud: new SoundcloudHandler(),
-}
+};
 
 /**
  * Fetch metadata from the user input. Returns a promise with an array of

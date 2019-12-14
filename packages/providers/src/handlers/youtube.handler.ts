@@ -5,8 +5,8 @@ import Discord from 'discord.js';
 import YTDL from 'ytdl-core';
 import to from 'await-to-js';
 
-import { ProviderHandler } from '@/handler';
-import YoutubeAPI from '@api/YoutubeAPI';
+import { ProviderHandler } from '../handler';
+import YoutubeAPI from '../api/YoutubeAPI';
 
 export default class YoutubeHandler extends ProviderHandler {
   /**
@@ -27,7 +27,7 @@ export default class YoutubeHandler extends ProviderHandler {
       // If URL is a video
       if (isVideo && !isPlaylist) {
         const [err, videoMetadata] = await to(YoutubeAPI.getVideo(query));
-  
+
         if (!err && videoMetadata) {
           const mappedTrack: Stream.ITrack = this.mapTrack(videoMetadata, message);
 
@@ -38,14 +38,14 @@ export default class YoutubeHandler extends ProviderHandler {
       else if (!isVideo && isPlaylist) {
         const playlistID = YoutubeHandler.getPlaylistID(query)!;
         const [err, playlistMetadata] = await to(YoutubeAPI.getPlaylist(playlistID));
-  
+
         if (!err && playlistMetadata) {
           const playlistVideoIDs = playlistMetadata.items.map(item => item.snippet.resourceId.videoId);
-  
+
           for (const videoID of playlistVideoIDs) {
             const videoURL = `https://youtube.com/watch?v=${videoID}`;
             const [videoErr, videoMetadata] = await to(YoutubeAPI.getVideo(videoURL));
-  
+
             if (!videoErr && videoMetadata) {
               const mappedTrack: Stream.ITrack = this.mapTrack(videoMetadata, message);
 
@@ -58,14 +58,14 @@ export default class YoutubeHandler extends ProviderHandler {
     // If we don't have a valid URL, we assume it's a search-query
     else {
       const [err, videoSearchResults] = await to(YoutubeAPI.searchVideo(query));
-  
+
       if (!err && videoSearchResults) {
         // Make sure to extract only the first 3 search results
         const firstVideosResults = videoSearchResults.items.slice(0, 3);
-  
+
         for (const video of firstVideosResults) {
           const [videoErr, videoMetadata] = await to(YTDL.getBasicInfo(video.id.videoId));
-  
+
           if (!videoErr && videoMetadata) {
             const mappedTrack: Stream.ITrack = this.mapTrack(videoMetadata, message);
 
@@ -74,7 +74,7 @@ export default class YoutubeHandler extends ProviderHandler {
         }
       }
     }
-  
+
     return tracks;
   }
 

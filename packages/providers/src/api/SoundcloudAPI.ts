@@ -1,7 +1,7 @@
 import { Soundcloud } from '@discord-stream/models';
 import Axios from 'axios';
 
-import { config } from '@/config';
+import { config } from '../config';
 
 export default class SoundcloudAPI {
   private static resolveBaseURL = 'http://api.soundcloud.com/resolve.json';

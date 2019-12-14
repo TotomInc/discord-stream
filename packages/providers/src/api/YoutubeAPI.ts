@@ -2,7 +2,7 @@ import { Youtube } from '@discord-stream/models';
 import Axios from 'axios';
 import YTDL from 'ytdl-core';
 
-import { config } from '@/config';
+import { config } from '../config';
 
 export default class YoutubeAPI {
   private static searchBaseURL = 'https://www.googleapis.com/youtube/v3/search';
