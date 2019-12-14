@@ -1,10 +1,9 @@
+import * as providers from '@discord-stream/providers';
 import to from 'await-to-js';
 
 import { Command } from '../models';
-import { client } from '../server';
 import { detectURLProvider, providersList } from '../utils/providers';
 import { isURL } from '../utils/url';
-import * as providers from '../providers';
 import * as player from '../player';
 
 module.exports = {

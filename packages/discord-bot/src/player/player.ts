@@ -1,7 +1,7 @@
+import * as providers from '@discord-stream/providers';
 import * as Discord from 'discord.js';
 
 import * as models from '../models';
-import * as providers from '../providers';
 import * as queue from './queue';
 import { LoggerService } from '../services/logger.service';
 
