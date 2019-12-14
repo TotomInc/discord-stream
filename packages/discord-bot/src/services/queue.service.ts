@@ -45,28 +45,7 @@ export class QueueService {
    * Get all queues of all existing guilds.
    */
   public getAll() {
-    return new Promise<Queue[]>(async (res, rej) => {
-      const queues: Queue[] = [];
-
-      let count = 1;
-
-      for (let current = 0; current < count;) {
-        await this.http.get<{ count: number; queues: Queue[]; }>(`queues?skip=${current}`)
-          .then((response) => {
-            count = response.data.count;
-            current += response.data.queues.length;
-
-            queues.push(...response.data.queues);
-          })
-          .catch((err) => {
-            current = count;
-
-            rej(err);
-          });
-      }
-
-      res(queues);
-    });
+    return this.http.get<{ count: number; queues: Queue[]; }>('queues?max=true');
   }
 
   /**
