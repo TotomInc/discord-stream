@@ -8,7 +8,6 @@ export const create = {
     ownerID: joi.string().required(),
     region: joi.string().required(),
     prefix: joi.string().optional(),
-    queue: joi.string().required(),
   },
 };
 

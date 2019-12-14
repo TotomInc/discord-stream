@@ -87,8 +87,6 @@ export namespace GuildAPI {
     ownerID: IGuild['ownerID'];
     region: IGuild['region'];
     iconURL?: IGuild['iconURL'];
-    /** ObjectID of the queue document reference */
-    queue: string;
   }
 
   /**
